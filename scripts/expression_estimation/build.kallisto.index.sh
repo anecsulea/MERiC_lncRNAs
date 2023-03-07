@@ -10,6 +10,6 @@ export pathResults=${path}/results/kallisto_indexes
 
 ####################################################################################
 
-singularity -B ${path} ${pathTools}/kallisto.sif kallisto index -i ${pathResults}/${annot} ${pathResults}/${annot}.fa
+singularity exec -B ${path} ${pathTools}/kallisto.sif kallisto index -i ${pathResults}/${annot} ${pathResults}/${annot}.fa
 
 ####################################################################################
