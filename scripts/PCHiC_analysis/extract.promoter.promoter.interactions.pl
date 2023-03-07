@@ -396,10 +396,11 @@ $parameters{"pathGeneInfo"}="NA";
 $parameters{"pathInteractions"}="NA";
 $parameters{"windowSize"}="NA";
 $parameters{"interactionType"}="NA";
-$parameters{"pathOutput"}="NA";
+$parameters{"pathDetailedOutput"}="NA";
+$parameters{"pathSimplifiedOutput"}="NA";
 
 my %defaultvalues;
-my @defaultpars=("pathAnnotGTF", "pathGeneInfo", "pathInteractions", "windowSize", "interactionType", "pathOutput");
+my @defaultpars=("pathAnnotGTF", "pathGeneInfo", "pathInteractions", "windowSize", "interactionType", "pathDetailedOutput", "pathSimplifiedOutput");
 
 my %numericpars;
 
@@ -537,9 +538,11 @@ print "Done.\n";
 
 print "Analyzing overlap and writing output...\n";
 
-open(my $output, ">".$parameters{"pathOutput"});
+open(my $output, ">".$parameters{"pathDetailedOutput"});
 
-print $output "TranscriptID1\tGeneID1\tGeneType1\tChr1\tPromoterStart1\tPromoterEnd1\tStrand1\tTranscriptID2\tGeneID2\tGeneType2\tChr2\tPromoterStart2\tPromoterEnd2\tStrand2\n";
+print $output "TranscriptID1\tGeneID1\tGeneType1\tChr1\tPromoterStart1\tPromoterEnd1\tStrand1\tTranscriptID2\tGeneID2\tGeneType2\tChr2\tPromoterStart2\tPromoterEnd2\tStrand2\tDistance\n";
+
+my %genecontacts;
 
 foreach my $idbait (keys %contacts){
     if(exists $overlap{$idbait}){
@@ -553,6 +556,8 @@ foreach my $idbait (keys %contacts){
 		    my $start1=$promotercoords{$idtx1}{"start"};
 		    my $end1=$promotercoords{$idtx1}{"end"};
 
+		    my $midpoint1=($start1+$end1)/2;
+
 		    my $type1=$geneinfo{$gene1}{"biotype"};
 		    
 		    foreach my $idtx2 (keys %{$overlap{$idother}}){
@@ -562,15 +567,56 @@ foreach my $idbait (keys %contacts){
 			my $start2=$promotercoords{$idtx2}{"start"};
 			my $end2=$promotercoords{$idtx2}{"end"};
 
+			my $midpoint2=($start2+$end2)/2;
+
+			my $dist="NA";
+
+			if($chr1 eq $chr2){
+			    $dist=abs($midpoint1-$midpoint2);
+			}
+
 			my $type2=$geneinfo{$gene2}{"biotype"};
 			
 			if($gene1 ne $gene2){
-			    print $output $idtx1."\t".$gene1."\t".$type1."\t".$chr1."\t".$start1."\t".$end1."\t".$strand1."\t".$idtx2."\t".$gene2."\t".$type2."\t".$chr2."\t".$start2."\t".$end2."\t".$strand2."\n";
+			    print $output $idtx1."\t".$gene1."\t".$type1."\t".$chr1."\t".$start1."\t".$end1."\t".$strand1."\t".$idtx2."\t".$gene2."\t".$type2."\t".$chr2."\t".$start2."\t".$end2."\t".$strand2."\t".$dist."\n";
 
+			    if(exists $genecontacts{$gene1}){
+				push(@{$genecontacts{$gene1}{$gene2}}, $dist);
+			    } else{
+				$genecontacts{$gene1}{$gene2}=[$dist];
+			    }
 			}
 		    }
 		}
 	    }
+	}
+    }
+}
+
+close($output);
+
+#####################################################################################
+
+open(my $output, ">".$parameters{"pathSimplifiedOutput"});
+
+print $output "Gene1\tGeneType1\tGene2\tGeneType2\tMinDistance\n";
+
+foreach my $gene1 (keys %genecontacts){
+
+    my $type1=$geneinfo{$gene1}{"biotype"};
+    
+    foreach my $gene2 (keys %{$genecontacts{$gene1}}){
+
+	my $type2=$geneinfo{$gene2}{"biotype"};
+
+	my @distances=@{$genecontacts{$gene1}{$gene2}};
+	my $firstdist=$distances[0];
+	
+	if($firstdist eq "NA"){
+	    print $output $gene1."\t".$type1."\t".$gene2."\t".$type2."\t".$firstdist."\n";
+	} else{
+	    my $mindist=min @distances;
+	    print $output $gene1."\t".$type1."\t".$gene2."\t".$type2."\t".$mindist."\n";
 	}
     }
 }
