@@ -1,0 +1,21 @@
+biopsyID	sex	age_at_biopsy	normal_liver_quality	RNAseq	Proteomics	Phosphoproteomics	RNA number of aligned reads (millions)	Number of proteins quantified in at least 1 out of 3 runs	Number of phosphosites quantified in at least 1 out of 3 runs
+B885	m	63	quality: 100	Y	Y	Y	57,124782	4895	7256
+B927	m	60	quality: 50	Y	Y	N	52,531516	5166	
+B986	m	49	quality: 100	Y	N	N	55,957494		
+C051a	f	62	quality: 100	Y	N	N	58,745978		
+C173	m	61	quality: 100	Y	N	N	55,117842		
+C222a	f	30	quality: 50	Y	Y	Y	73,302729	5146	7134
+C250a	m	80	quality: 100	Y	Y	Y	63,522736	4804	8900
+C354a	f	42	quality: 50	Y	Y	Y	82,191269	5632	7151
+C369	m	36	quality: 50	Y	N	N	69,517405		
+C445	m	33	quality: 50	Y	N	N	65,833663		
+C491	m	43	quality: 100	Y	N	N	79,81614		
+C545	m	54	quality: 50	Y	N	N	66,470193		
+C686	f	53	quality: 50	Y	Y	Y	64,517618	5371	8637
+C712	m	46	quality: 50	Y	Y	Y	58,106001	5473	8997
+C782	m	77	quality: 100	Y	N	N	55,055852		
+D568	f	56	na	N	Y	Y		5282	9057
+D605	m	73	na	N	Y	Y		5367	9124
+D635	m	44	na	N	Y	Y		5194	9083
+D738	f	29	na	N	Y	Y		5598	9016
+POOL								6134	8981
