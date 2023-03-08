@@ -32,7 +32,7 @@ for(annot in c("AllTranscripts_Ensembl109_noMT_norRNA")){
         ###############################################################################
 
         files=paste(pathExpression, annot, "/", samples, "/abundance.h5", sep="")
-        names(files)=rownames(samples)
+        names(files)=samples
 
         txi.kallisto <- tximport(files, type = "kallisto", tx2gene = tx2gene)
 
@@ -56,29 +56,17 @@ for(annot in c("AllTranscripts_Ensembl109_noMT_norRNA")){
 
         ########################################################################
 
-        ## add gene id as a column
-
-        tpm$GeneID=rownames(tpm)
-        tpm.norm$GeneID=rownames(tpm.norm)
-        read.counts$GeneID=rownames(read.counts)
-        efflen$GeneID=rownames(efflen)
-
-        tpm=tpm[,c("GeneID", setdiff(colnames(tpm), "GeneID"))]
-        tpm.norm=tpm.norm[,c("GeneID", setdiff(colnames(tpm), "GeneID"))]
-        read.counts=read.counts[,c("GeneID", setdiff(colnames(tpm), "GeneID"))]
-        efflen=efflen[,c("GeneID", setdiff(colnames(tpm), "GeneID"))]
-
-        #######################################################################
-
         ## write output
 
-        write.table(efflen, file=paste(pathExpression, annot,  "/AllSamples_KallistoEffectiveLength.txt",sep=""), row.names=F, col.names=T, quote=F, sep="\t")
+        writeLines(hk.genes, con=paste(pathExpression, annot,  "/HousekeepingGenes.txt",sep=""))
 
-        write.table(read.counts, file=paste(pathExpression, annot, "/AllSamples_KallistoEstimatedCounts.txt",sep=""), row.names=F, col.names=T, quote=F, sep="\t")
+        write.table(efflen, file=paste(pathExpression, annot,  "/AllSamples_KallistoEffectiveLength.txt",sep=""), row.names=T, col.names=T, quote=F, sep="\t")
 
-        write.table(tpm, file=paste(pathExpression, annot, "/AllSamples_KallistoRawTPM.txt",sep=""), row.names=F, col.names=T, quote=F, sep="\t")
+        write.table(read.counts, file=paste(pathExpression, annot, "/AllSamples_KallistoEstimatedCounts.txt",sep=""), row.names=T, col.names=T, quote=F, sep="\t")
 
-        write.table(tpm.norm, file=paste(pathExpression, annot,  "/AllSamples_KallistoNormalizedTPM.txt",sep=""), row.names=F, col.names=T, quote=F, sep="\t")
+        write.table(tpm, file=paste(pathExpression, annot, "/AllSamples_KallistoRawTPM.txt",sep=""), row.names=T, col.names=T, quote=F, sep="\t")
+
+        write.table(tpm.norm, file=paste(pathExpression, annot,  "/AllSamples_KallistoNormalizedTPM.txt",sep=""), row.names=T, col.names=T, quote=F, sep="\t")
 
         ########################################################################
     }
