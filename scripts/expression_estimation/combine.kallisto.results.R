@@ -1,0 +1,86 @@
+########################################################################
+
+pathExpression="../../results/expression_estimation/"
+
+########################################################################
+
+set.seed(19)
+
+source("normalization.R")
+
+########################################################################
+
+library(tximport)
+
+########################################################################
+
+for(annot in c("AllTranscripts_Ensembl109_noMT_norRNA")){
+
+    if(file.exists(paste(pathExpression,  annot, "/AllSamples_KallistoRawTPM.txt",sep=""))){
+        print(paste("already done",annot))
+    } else{
+
+        samples=system(paste("ls ",pathExpression,  annot, " | grep -v txt",sep=""), intern=T)
+
+        ## tx2gene table
+
+        info=read.table(paste(pathExpression, annot, "/",samples[1],"/abundance.tsv", sep=""), h=T, stringsAsFactors=F, sep="\t")
+        tx=info$target_id
+        gene=unlist(lapply(tx, function(x) unlist(strsplit(x, split=":"))[1]))
+        tx2gene=data.frame("tx"=tx, "gene"=gene, stringsAsFactors=F)
+
+        ###############################################################################
+
+        files=paste(pathExpression, annot, "/", samples, "/abundance.h5", sep="")
+        names(files)=rownames(samples)
+
+        txi.kallisto <- tximport(files, type = "kallisto", tx2gene = tx2gene)
+
+        ########################################################################
+
+        read.counts=as.data.frame(txi.kallisto$counts)
+
+        tpm=as.data.frame(txi.kallisto$abundance)
+
+        efflen=as.data.frame(txi.kallisto$length)
+
+        ########################################################################
+
+        ## normalization
+
+        norm.data=normalization(tpm)
+        tpm.norm=norm.data[["expdata.norm"]]
+        rownames(tpm.norm)=rownames(tpm)
+
+        hk.genes=norm.data[["hk.genes"]]
+
+        ########################################################################
+
+        ## add gene id as a column
+
+        tpm$GeneID=rownames(tpm)
+        tpm.norm$GeneID=rownames(tpm.norm)
+        read.counts$GeneID=rownames(read.counts)
+        efflen$GeneID=rownames(efflen)
+
+        tpm=tpm[,c("GeneID", setdiff(colnames(tpm), "GeneID"))]
+        tpm.norm=tpm.norm[,c("GeneID", setdiff(colnames(tpm), "GeneID"))]
+        read.counts=read.counts[,c("GeneID", setdiff(colnames(tpm), "GeneID"))]
+        efflen=efflen[,c("GeneID", setdiff(colnames(tpm), "GeneID"))]
+
+        #######################################################################
+
+        ## write output
+
+        write.table(efflen, file=paste(pathExpression, annot,  "/AllSamples_KallistoEffectiveLength.txt",sep=""), row.names=F, col.names=T, quote=F, sep="\t")
+
+        write.table(read.counts, file=paste(pathExpression, annot, "/AllSamples_KallistoEstimatedCounts.txt",sep=""), row.names=F, col.names=T, quote=F, sep="\t")
+
+        write.table(tpm, file=paste(pathExpression, annot, "/AllSamples_KallistoRawTPM.txt",sep=""), row.names=F, col.names=T, quote=F, sep="\t")
+
+        write.table(tpm.norm, file=paste(pathExpression, annot,  "/AllSamples_KallistoNormalizedTPM.txt",sep=""), row.names=F, col.names=T, quote=F, sep="\t")
+
+        ########################################################################
+    }
+}
+########################################################################
