@@ -80,8 +80,8 @@ else
     echo "#SBATCH --output=${pathScripts}/std_out_kallisto_${sample}" >>  ${pathScripts}/bsub_script
     echo "#SBATCH --error=${pathScripts}/std_err_kallisto_${sample}" >>  ${pathScripts}/bsub_script
     echo "#SBATCH --cpus-per-task=${nthreads}" >>  ${pathScripts}/bsub_script ## ${ncores} CPU
-    echo "#SBATCH --time=1:00:00" >>  ${pathScripts}/bsub_script ## 8 hours
-    echo "#SBATCH --mem=15G" >>  ${pathScripts}/bsub_script ## 15g per CPU
+    echo "#SBATCH --time=2:00:00" >>  ${pathScripts}/bsub_script ## 8 hours
+    echo "#SBATCH --mem=25G" >>  ${pathScripts}/bsub_script ## 15g per CPU
     
     echo "singularity exec -B ${path} ${pathTools}/kallisto.sif kallisto quant --single -l 200.0 -s 25 --bias -t ${nthreads} --rf-stranded -o ${pathResults}/${annot}/${sample} --index ${pathIndexes}/${annot} ${pathR1} " >> ${pathScripts}/bsub_script
 
