@@ -14,7 +14,7 @@ library(tximport)
 
 ########################################################################
 
-for(annot in c("AllTranscripts_Ensembl109_noMT_norRNA")){
+for(annot in c("AllTranscripts_Ensembl109_noMT_norRNA_nohaplo")){
 
     if(file.exists(paste(pathExpression,  annot, "/AllSamples_KallistoRawTPM.txt",sep=""))){
         print(paste("already done",annot))
