@@ -1,7 +1,7 @@
 ###########################################################################
 
 pathDocs="../../docs/"
-pathResults="../../results/expression_estimation/"
+pathResults="../../results/differential_expression/"
 
 ###########################################################################
 
