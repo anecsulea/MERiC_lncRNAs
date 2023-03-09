@@ -11,7 +11,7 @@ pathExpression="../../results/expression_estimation/"
 pathDifferentialExpression="../../results/differential_expression/"
 pathAnnot="../../data/ensembl_annotations/"
 
-annot="AllTranscripts_Ensembl109_noMT_norRNA"
+annot="AllTranscripts_Ensembl109_noMT_norRNA_nohaplo"
 
 ########################################################################
 
