@@ -12,7 +12,7 @@ library(ade4)
 
 ########################################################################
 
-tpm=read.table(paste("../../results/expression_estimation/", annot, "/AllSamples_KallistoRawTPM.txt",sep=""), h=T, stringsAsFactors=F)
+tpm=read.table(paste(pathExpression, annot, "/AllSamples_KallistoRawTPM.txt",sep=""), h=T, stringsAsFactors=F)
 
 ########################################################################
 
