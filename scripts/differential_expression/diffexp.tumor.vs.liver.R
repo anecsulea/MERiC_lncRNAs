@@ -1,0 +1,64 @@
+########################################################################
+
+library(DESeq2)
+library(BiocParallel)
+
+register(MulticoreParam(4))
+
+########################################################################
+
+pathExpression="../../results/expression_estimation/"
+pathDifferentialExpression="../../results/differential_expression/"
+pathAnnot="../../data/ensembl_annotations/"
+
+annot="AllTranscripts_Ensembl109_noMT_norRNA"
+
+########################################################################
+
+read.counts=read.table(paste(pathExpression, annot, "/AllSamples_KallistoEstimatedCounts.txt",sep=""), h=T, stringsAsFactors=F)
+
+read.counts=round(read.counts)
+
+########################################################################
+
+sampleinfo=read.table(paste(pathDifferentialExpression, "SampleInfo.txt", sep=""), h=T, stringsAsFactors=F,sep="\t")
+
+sampleinfo=sampleinfo[which(sampleinfo$BiopsyID%in%colnames(read.counts)),]
+
+read.counts=read.counts[,sampleinfo$BiopsyID]
+
+########################################################################
+
+geneinfo=read.table(paste(pathAnnot, "GeneInfo_Ensembl109.txt", sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
+
+geneinfo=geneinfo[which(geneinfo$Gene.stable.ID%in%rownames(read.counts)),]
+
+pc=geneinfo$Gene.stable.ID[which(geneinfo$Gene.type=="protein_coding")]
+
+lnc=geneinfo$Gene.stable.ID[which(geneinfo$Gene.type=="lncRNA")]
+
+read.counts=read.counts[c(pc, lnc),]
+
+########################################################################
+
+colData=data.frame("Sex"=as.factor(sampleinfo$Sex), "Tissue"=as.factor(sampleinfo$TissueType))
+
+dds=DESeqDataSetFromMatrix(read.counts, colData=colData, design = ~Sex+Tissue)
+
+dds=DESeq(dds, test="Wald",  minReplicatesForReplace=10, parallel=T)
+
+########################################################################
+
+res.tissue.reduced=results(dds, contrast=c("Tissue", "Tumor", "Liver"))
+
+res.tissue.reduced=lfcShrink(dds, coef="Tissue_Tumor_vs_Liver", res=res.tissue.reduced, type="apeglm")
+
+res.tissue.reduced=as.data.frame(res.tissue.reduced)
+
+res.tissue.reduced=res.tissue.reduced[order(res.tissue.reduced$padj),]
+
+########################################################################
+
+write.table(res.tissue.reduced, file=paste(pathDifferentialExpression, annot, "/DifferentialExpression_Tumor_vs_Liver.txt",sep=""), row.names=T, col.names=T, sep="\t", quote=F)
+
+########################################################################
