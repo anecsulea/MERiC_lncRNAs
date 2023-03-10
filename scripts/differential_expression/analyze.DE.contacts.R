@@ -85,7 +85,9 @@ for(test in c("Tumor_vs_Liver", "EdmondsonGrade_34_vs_12")){
 
     all.results=t(as.data.frame(all.results))
 
-    write.table(all.results, file=paste(pathResults, expdata, "/ProportionDE_ContactedGenes_minDistance50kb_maxDistance2.5Mb_",test,"_maxFDR", maxFDR, "_minFC",minFC,".txt",sep=""), row.names=t, col.names=T, sep="\t")
+    all.results=as.data.frame(all.results)
+
+    write.table(all.results, file=paste(pathResults, expdata, "/ProportionDE_ContactedGenes_minDistance50kb_maxDistance2.5Mb_",test,"_maxFDR", maxFDR, "_minFC",minFC,".txt",sep=""), row.names=T, col.names=T, sep="\t")
 
 }
 
