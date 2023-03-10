@@ -5,8 +5,9 @@ export TF_dataset=$2
 export path=$3
 export pathTools=$4
 export threads=$5
-export scheduler=$6
-export seed=$7
+export hours=$6
+export scheduler=$7
+export seed=$8
 
 ####################################################################################
 
@@ -23,7 +24,7 @@ if [ ${scheduler} = "slurm" ]; then
     echo "#SBATCH --output=${pathScripts}/std_out_aracne_${seed}" >>  ${pathScripts}/bsub_script
     echo "#SBATCH --error=${pathScripts}/std_err_aracne_${seed}" >>  ${pathScripts}/bsub_script
     echo "#SBATCH --cpus-per-task=${threads}" >>  ${pathScripts}/bsub_script 
-    echo "#SBATCH --time=4:00:00" >>  ${pathScripts}/bsub_script 
+    echo "#SBATCH --time=${hours}:00:00" >>  ${pathScripts}/bsub_script 
     echo "#SBATCH --mem=20G" >>  ${pathScripts}/bsub_script
 fi
 
