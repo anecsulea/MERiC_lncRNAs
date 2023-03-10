@@ -21,7 +21,7 @@ do
     echo "#!/bin/bash " > ${pathScripts}/bsub_script
 
     if [ ${scheduler} = "slurm" ]; then
-	echo "#SBATCH --job-name=kallisto_${sample}" >>  ${pathScripts}/bsub_script
+	echo "#SBATCH --job-name=aracne_${i}" >>  ${pathScripts}/bsub_script
 	echo "#SBATCH --output=${pathScripts}/std_out_aracne_${i}" >>  ${pathScripts}/bsub_script
 	echo "#SBATCH --error=${pathScripts}/std_err_aracne_${i}" >>  ${pathScripts}/bsub_script
 	echo "#SBATCH --cpus-per-task=${threads}" >>  ${pathScripts}/bsub_script 
