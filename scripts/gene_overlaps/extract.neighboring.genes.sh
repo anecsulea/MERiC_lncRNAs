@@ -17,6 +17,10 @@ done
 
 #########################################################################
 
+perl ${pathScripts}/extract.neighboring.genes.pl --pathExonBlocks=${pathResults}/ExonBlocks_${annot}.txt --windowSize=0 --pathOutput=${pathResults}/OverlappingGenes_${annot}.txt
+
+#########################################################################
+
 
 
 
