@@ -2,7 +2,7 @@
 
 pathAnnot="../../data/ensembl_annotations/"
 pathResults="../../results/differential_expression/"
-pathGeneOverlaps="../../results/gene_overlaps/"
+pathPCHiC="../../results/PCHiC_interactions/"
 
 release=109
 annot="AllTranscripts_Ensembl109"
@@ -23,35 +23,28 @@ lnc=geneinfo$Gene.stable.ID[which(geneinfo$Gene.type=="lncRNA")]
 
 ####################################################################################
 
-## overlapping genes
+## contacts
 
-geneov=read.table(paste(pathGeneOverlaps, "OverlappingGenes_", annot, ".txt",sep=""), h=T, stringsAsFactors=F)
-geneov=geneov[which(geneov$GeneID%in%c(pc,lnc) & geneov$NeighborID%in%c(pc,lnc)),]
-
-####################################################################################
-
-## neighboring genes
-
-neighbors=read.table(paste(pathGeneOverlaps, "NeighboringGenes_50kb_",annot,".txt",sep=""), h=T, stringsAsFactors=F)
-neighbors=neighbors[which(neighbors$GeneID%in%c(pc,lnc) & neighbors$NeighborID%in%c(pc,lnc)),]
+contacts=read.table(paste(pathPCHiC, "PromoterPromoterInteractions_AllTranscripts_Ensembl109_WindowSize1000_unbaited_genesummary.txt", sep=""), h=T, stringsAsFactors=F)
+contacts=contacts[which(contacts$Gene1%in%c(pc,lnc) & contacts$Gene2%in%c(pc,lnc) & contacts$MinDistance>50000 & contacts$MinDistance<2.5e6),]
 
 ####################################################################################
 
-compute.prop.neighbors <- function(deres, neighbors, up.pc, up.lnc, down.pc, down.lnc){
+compute.prop.contacts <- function(deres, contacts, up.pc, up.lnc, down.pc, down.lnc){
     signif.genes=c(up.pc, up.lnc, down.pc, down.lnc)
     up.genes=c(up.pc, up.lnc)
     down.genes=c(down.pc, down.lnc)
 
-    signif.neighbors=lapply(signif.genes, function(x) neighbors$NeighborID[which(neighbors$GeneID==x)])
-    names(signif.neighbors)=signif.genes
+    signif.contacts=lapply(signif.genes, function(x) unique(c(contacts$Gene2[which(contacts$Gene1==x)]))) ## look only at the genes contacted by the baited gene
+    names(signif.contacts)=signif.genes
 
-    prop.up.pc.has.up.neighbor=length(which(unlist(lapply(signif.neighbors[up.pc], function(x) any(x%in%up.genes)))))/length(up.pc)
-    prop.up.lnc.has.up.neighbor=length(which(unlist(lapply(signif.neighbors[up.lnc], function(x) any(x%in%up.genes)))))/length(up.lnc)
+    prop.up.pc.has.up.contact=length(which(unlist(lapply(signif.contacts[up.pc], function(x) any(x%in%up.genes)))))/length(up.pc)
+    prop.up.lnc.has.up.contact=length(which(unlist(lapply(signif.contacts[up.lnc], function(x) any(x%in%up.genes)))))/length(up.lnc)
 
-    prop.down.pc.has.down.neighbor=length(which(unlist(lapply(signif.neighbors[down.pc], function(x) any(x%in%down.genes)))))/length(down.pc)
-    prop.down.lnc.has.down.neighbor=length(which(unlist(lapply(signif.neighbors[down.lnc], function(x) any(x%in%down.genes)))))/length(down.lnc)
+    prop.down.pc.has.down.contact=length(which(unlist(lapply(signif.contacts[down.pc], function(x) any(x%in%down.genes)))))/length(down.pc)
+    prop.down.lnc.has.down.contact=length(which(unlist(lapply(signif.contacts[down.lnc], function(x) any(x%in%down.genes)))))/length(down.lnc)
 
-    results=list("pc.upup"=prop.up.pc.has.up.neighbor, "pc.downdown"=prop.down.pc.has.down.neighbor, "lnc.upup"=prop.up.lnc.has.up.neighbor, "lnc.downdown"=prop.down.lnc.has.down.neighbor)
+    results=list("pc.upup"=prop.up.pc.has.up.contact, "pc.downdown"=prop.down.pc.has.down.contact, "lnc.upup"=prop.up.lnc.has.up.contact, "lnc.downdown"=prop.down.lnc.has.down.contact)
     return(results)
 }
 
@@ -59,6 +52,9 @@ compute.prop.neighbors <- function(deres, neighbors, up.pc, up.lnc, down.pc, dow
 
 for(test in c("Tumor_vs_Liver", "EdmondsonGrade_34_vs_12")){
     deres=read.table(paste(pathResults,expdata, "/DifferentialExpression_",test,".txt", sep=""), h=T, stringsAsFactors=F, sep="\t")
+
+    ## take only genes that are baited
+    deres=deres[which(rownames(deres)%in%contacts$Gene1),]
 
     up.genes=rownames(deres)[which(deres$padj<maxFDR & deres$log2FoldChange>=log2(minFC))]
     down.genes=rownames(deres)[which(deres$padj<maxFDR & deres$log2FoldChange<=log2(1/minFC))]
@@ -68,7 +64,7 @@ for(test in c("Tumor_vs_Liver", "EdmondsonGrade_34_vs_12")){
     up.lnc=intersect(up.genes, lnc)
     down.lnc=intersect(down.genes, lnc)
 
-    results=compute.prop.neighbors(deres, neighbors, up.pc, up.lnc, down.pc, down.lnc)
+    results=compute.prop.contacts(deres, contacts, up.pc, up.lnc, down.pc, down.lnc)
 
     all.results=list()
     all.results[["real"]]=unlist(results)
@@ -83,14 +79,13 @@ for(test in c("Tumor_vs_Liver", "EdmondsonGrade_34_vs_12")){
         random.up.lnc=sample(intersect(lnc, rownames(deres)),  size=length(up.lnc), re=FALSE)
         random.down.lnc=sample(setdiff(intersect(lnc, rownames(deres)), random.up.lnc),  size=length(down.lnc), re=FALSE)
 
-        random.results=compute.prop.neighbors(deres, neighbors, random.up.pc, random.up.lnc, random.down.pc, random.down.lnc)
+        random.results=compute.prop.contacts(deres, contacts, random.up.pc, random.up.lnc, random.down.pc, random.down.lnc)
         all.results[[paste("rand",i,sep="")]]=unlist(random.results)
     }
 
     all.results=t(as.data.frame(all.results))
 
-
-    write.table(all.results, file=paste(pathResults, expdata, "/ProportionDE_NeighborGenes_maxDistance50kb_",test,"_maxFDR", maxFDR, "_minFC",minFC,".txt",sep=""), row.names=t, col.names=T, sep="\t")
+    write.table(all.results, file=paste(pathResults, expdata, "/ProportionDE_ContactedGenes_minDistance50kb_maxDistance2.5Mb_",test,"_maxFDR", maxFDR, "_minFC",minFC,".txt",sep=""), row.names=t, col.names=T, sep="\t")
 
 }
 
