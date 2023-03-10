@@ -22,9 +22,8 @@ do
 
     if [ ${scheduler} = "slurm" ]; then
 	echo "#SBATCH --job-name=kallisto_${sample}" >>  ${pathScripts}/bsub_script
-	echo "#SBATCH --partition=normal" >>  ${pathScripts}/bsub_script
-	echo "#SBATCH --output=${pathScripts}/std_out_kallisto_${sample}" >>  ${pathScripts}/bsub_script
-	echo "#SBATCH --error=${pathScripts}/std_err_kallisto_${sample}" >>  ${pathScripts}/bsub_script
+	echo "#SBATCH --output=${pathScripts}/std_out_aracne_${i}" >>  ${pathScripts}/bsub_script
+	echo "#SBATCH --error=${pathScripts}/std_err_aracne_${i}" >>  ${pathScripts}/bsub_script
 	echo "#SBATCH --cpus-per-task=${threads}" >>  ${pathScripts}/bsub_script 
 	echo "#SBATCH --time=4:00:00" >>  ${pathScripts}/bsub_script 
 	echo "#SBATCH --mem=20G" >>  ${pathScripts}/bsub_script
