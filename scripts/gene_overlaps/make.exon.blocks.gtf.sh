@@ -5,7 +5,7 @@ export path=$1
 #####################################################################
 
 export pathAnnot=${path}/data/ensembl_annotations
-export pahtResults=${path}/results/gene_overlaps
+export pathResults=${path}/results/gene_overlaps
 export pathScripts=${path}/scripts/gene_overlaps
 
 export release=109
