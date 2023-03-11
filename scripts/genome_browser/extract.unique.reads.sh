@@ -21,9 +21,9 @@ if [ -e ${pathAlignments}/${sample}/accepted_hits.bam ]; then
 	echo "#!/bin/bash" >  ${pathScripts}/bsub_script_unique_${sample}
 	
 	if [ ${scheduler} = "slurm" ]; then
-	    echo "#SBATCH --job-name=hisat_${sample}" >>  ${pathScripts}/bsub_script_unique_${sample}
-	    echo "#SBATCH --output=${pathScripts}/std_out_${sample}" >>  ${pathScripts}/bsub_script_unique_${sample}
-	    echo "#SBATCH --error=${pathScripts}/std_err_${sample}" >>  ${pathScripts}/bsub_script_unique_${sample}
+	    echo "#SBATCH --job-name=unique_${sample}" >>  ${pathScripts}/bsub_script_unique_${sample}
+	    echo "#SBATCH --output=${pathScripts}/std_out_unique_${sample}" >>  ${pathScripts}/bsub_script_unique_${sample}
+	    echo "#SBATCH --error=${pathScripts}/std_err_unique_${sample}" >>  ${pathScripts}/bsub_script_unique_${sample}
 	    echo "#SBATCH --cpus-per-task=1" >> ${pathScripts}/bsub_script_unique_${sample}
 	    echo "#SBATCH --time=24:00:00" >>  ${pathScripts}/bsub_script_unique_${sample}
 	    echo "#SBATCH --mem=4G" >>  ${pathScripts}/bsub_script_unique_${sample}
