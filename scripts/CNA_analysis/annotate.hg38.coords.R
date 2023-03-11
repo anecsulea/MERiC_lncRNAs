@@ -5,7 +5,7 @@ pathResults="../../results/CNA_analysis/"
 
 ######################################################################
 
-for(dataset in c("CRE", "AllExonv6")){
+for(dataset in c("CRE", "AllExonsv6")){
     orig=read.table(paste(pathData, "all_",dataset,".geneCN.ampdel.txt",sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
     orig=orig[which(!is.na(orig$seg_start)),]
     orig$id=paste(orig$seg_chr,":", orig$seg_start, "-", orig$seg_end,sep="")
@@ -53,7 +53,7 @@ for(dataset in c("CRE", "AllExonv6")){
 
     print(paste(nrow(results), "lines kept"))
 
-    write.table(results, file=paste(pathResults, "all_", dataset,".geneCN.ampdel.hg38.txt",sep=""))
+    write.table(results, file=paste(pathResults, "all_", dataset,".geneCN.ampdel.hg38.txt",sep=""), sep="\t", row.names=F, col.names=T, quote=F)
 
 }
 
