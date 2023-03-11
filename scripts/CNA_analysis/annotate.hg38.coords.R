@@ -5,7 +5,7 @@ pathResults="../../results/CNA_analysis/"
 
 ######################################################################
 
-for(dataset in ("CRE", "AllExonv6")){
+for(dataset in c("CRE", "AllExonv6")){
     orig=read.table(paste(pathData, "all_",dataset,".geneCN.ampdel.txt",sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
     orig=orig[which(!is.na(orig$seg_start)),]
     orig$id=paste(orig$seg_chr,":", orig$seg_start, "-", orig$seg_end,sep="")
