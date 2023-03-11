@@ -104,12 +104,6 @@ else
 	echo "rm ${pathRNASeq}/${file}.fastq.gz" >>  ${pathScripts}/bsub_script_hisat
     done
 
-    echo "perl ${pathScripts}/cleanup.sam.pl --pathInput=${pathResults}/${sample}/accepted_hits.sam --pathOutput=${pathResults}/${sample}/accepted_hits_clean.sam " >> ${pathScripts}/bsub_script_hisat
-    
-    echo "rm ${pathResults}/${sample}/accepted_hits.sam " >>  ${pathScripts}/bsub_script_hisat
-    
-    echo "gzip ${pathResults}/${sample}/accepted_hits_clean.sam " >> ${pathScripts}/bsub_script_hisat
-    
     if [ ${scheduler} = "slurm" ]; then
 	sbatch ${pathScripts}/bsub_script_hisat
     else
