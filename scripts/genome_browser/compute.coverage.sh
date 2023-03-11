@@ -36,7 +36,7 @@ if [ -e ${pathAlignments}/${sample}/accepted_hits_unique_forward.bam ]&&[ -e ${p
 		echo "#SBATCH --error=${pathScripts}/std_err_coverage_${sample}" >>  ${pathScripts}/bsub_script_coverage_${sample}
 		echo "#SBATCH --cpus-per-task=1" >> ${pathScripts}/bsub_script_coverage_${sample}
 		echo "#SBATCH --time=24:00:00" >>  ${pathScripts}/bsub_script_coverage_${sample}
-		echo "#SBATCH --mem=4G" >>  ${pathScripts}/bsub_script_coverage_${sample}
+		echo "#SBATCH --mem=12G" >>  ${pathScripts}/bsub_script_coverage_${sample}
 	    fi
 	    
 	    ## forward strand
