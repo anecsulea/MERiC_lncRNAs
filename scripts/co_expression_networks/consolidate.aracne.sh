@@ -11,6 +11,6 @@ export pathResults=${path}/results/co_expression_networks/${exp_dataset}/${TF_da
 
 ####################################################################################
 
-java -Xmx5G -jar ${pathTools}/ARACNe-AP/dist/aracne.jar -o ${pathResults} --consolidate
+java -Xmx64G -jar ${pathTools}/ARACNe-AP/dist/aracne.jar -o ${pathResults} --consolidate
 
 ####################################################################################
