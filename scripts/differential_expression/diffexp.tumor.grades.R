@@ -5,6 +5,8 @@ library(BiocParallel)
 
 register(MulticoreParam(4))
 
+minTPM=1
+
 ########################################################################
 
 pathExpression="../../results/expression_estimation/"
@@ -32,9 +34,19 @@ read.counts=read.counts[,sampleinfo$BiopsyID]
 
 ########################################################################
 
+tpm=read.table(paste(pathExpression, annot, "/AllSamples_KallistoRawTPM.txt",sep=""), h=T, stringsAsFactors=F)
+
+maxtpm=apply(tpm,1,max)
+names(maxtpm)=rownames(tpm)
+
+selected.genes=names(maxtpm)[which(maxtpm>=minTPM)]
+
+########################################################################
+
 geneinfo=read.table(paste(pathAnnot, "GeneInfo_Ensembl109.txt", sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
 
 geneinfo=geneinfo[which(geneinfo$Gene.stable.ID%in%rownames(read.counts)),]
+geneinfo=geneinfo[which(geneinfo$Gene.stable.ID%in%selected.genes),]
 
 pc=geneinfo$Gene.stable.ID[which(geneinfo$Gene.type=="protein_coding")]
 

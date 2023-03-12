@@ -12,7 +12,7 @@ annot="AllTranscripts_Ensembl109"
 expdata="AllTranscripts_Ensembl109_noMT_norRNA_nohaplo"
 
 maxFDR=1e-3
-minFC=2
+minFC=1.5
 
 ####################################################################################
 
@@ -33,6 +33,7 @@ geneinfo=geneinfo[which(geneinfo$Chromosome.scaffold.name%in%c(as.character(1:22
 
 pc=geneinfo$Gene.stable.ID[which(geneinfo$Gene.type=="protein_coding")]
 lnc=geneinfo$Gene.stable.ID[which(geneinfo$Gene.type=="lncRNA")]
+pseudo=geneinfo$Gene.stable.ID[which(geneinfo$Gene.type%in%c("transcribed_unitary_pseudogene", "transcribed_unprocessed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"))]
 
 ####################################################################################
 
