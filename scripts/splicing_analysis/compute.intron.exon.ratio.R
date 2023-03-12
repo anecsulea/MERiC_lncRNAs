@@ -17,16 +17,6 @@ liver.samples=liver.samples[which(liver.samples$biopsyID!="POOL"),]
 
 ###########################################################################
 
-## select one sample per patient
-
-dupli=which(duplicated(tumor.samples$Patient_ID))
-
-if(length(dupli)>0){
-    tumor.samples=tumor.samples[-dupli,]
-}
-
-###########################################################################
-
 sample.info.t=data.frame("BiopsyID"=tumor.samples$tumor_biopsyID, "TissueType"=rep("Tumor", nrow(tumor.samples)), "Sex"=tumor.samples$sex, "AgeAtBiopsy"=tumor.samples$age_at_biopsy, "EdmondsonGrade"=tumor.samples$edmondson, "Cirrhosis"=tumor.samples$cirrhosis, "Diseases"=tumor.samples$underlying_liver_disease)
 
 sample.info.l=data.frame("BiopsyID"=liver.samples$biopsyID, "TissueType"=rep("Liver", nrow(liver.samples)), "Sex"=liver.samples$sex, "AgeAtBiopsy"=liver.samples$age_at_biopsy, "EdmondsonGrade"=rep(NA, nrow(liver.samples)), "Cirrhosis"=rep(NA, nrow(liver.samples)), "Diseases"=rep(NA, nrow(liver.samples)))
@@ -60,7 +50,6 @@ for(i in 1:length(samples)){
       results=data.frame("GeneID"=common, "CoverageExons"=exons[common, "MeanCoverageSense"], "CoverageIntrons"=introns[common, "MeanCoverageSense"], "Ratio"=ratio, stringsAsFactors=F)
 
       write.table(results, file=paste(pathResults, sample, "/IntronExonRatio_", annot, ".txt", sep=""), row.names=F, col.names=T, sep="\t", quote=F)
-
       if(length(all.results)==0){
           all.results[[sample]]=ratio
       } else{
