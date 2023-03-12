@@ -10,6 +10,7 @@ register(MulticoreParam(4))
 pathExpression="../../results/expression_estimation/"
 pathDifferentialExpression="../../results/differential_expression/"
 pathAnnot="../../data/ensembl_annotations/"
+pathSampleInfo="../../results/sample_info/"
 
 annot="AllTranscripts_Ensembl109_noMT_norRNA_nohaplo"
 
@@ -39,7 +40,9 @@ pc=geneinfo$Gene.stable.ID[which(geneinfo$Gene.type=="protein_coding")]
 
 lnc=geneinfo$Gene.stable.ID[which(geneinfo$Gene.type=="lncRNA")]
 
-read.counts=read.counts[c(pc, lnc),]
+pseudo=geneinfo$Gene.stable.ID[which(geneinfo$Gene.type%in%c("transcribed_unitary_pseudogene", "transcribed_unprocessed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"))]
+
+read.counts=read.counts[c(pc, lnc, pseudo),]
 
 ########################################################################
 

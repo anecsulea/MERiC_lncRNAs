@@ -10,6 +10,7 @@ register(MulticoreParam(4))
 pathExpression="../../results/expression_estimation/"
 pathDifferentialExpression="../../results/differential_expression/"
 pathAnnot="../../data/ensembl_annotations/"
+pathSampleInfo="../../results/sample_info/"
 
 annot="AllTranscripts_Ensembl109_noMT_norRNA_nohaplo"
 
@@ -21,9 +22,9 @@ read.counts=round(read.counts)
 
 ########################################################################
 
-sampleinfo=read.table(paste(pathDifferentialExpression, "SampleInfo.txt", sep=""), h=T, stringsAsFactors=F,sep="\t")
+sampleinfo=read.table(paste(pathSampleInfo, "AnalyzedSamples.txt", sep=""), h=T, stringsAsFactors=F, sep="\t")
 
-sampleinfo=sampleinfo[which(sampleinfo$BiopsyID%in%colnames(read.counts)),]
+print(paste("have reads for all samples: ",all(sampleinfo$BiopsyID%in%colnames(read.counts))))
 
 read.counts=read.counts[,sampleinfo$BiopsyID]
 
@@ -37,7 +38,9 @@ pc=geneinfo$Gene.stable.ID[which(geneinfo$Gene.type=="protein_coding")]
 
 lnc=geneinfo$Gene.stable.ID[which(geneinfo$Gene.type=="lncRNA")]
 
-read.counts=read.counts[c(pc, lnc),]
+pseudo=geneinfo$Gene.stable.ID[which(geneinfo$Gene.type%in%c("transcribed_unitary_pseudogene", "transcribed_unprocessed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"))]
+
+read.counts=read.counts[c(pc, lnc, pseudo),]
 
 ########################################################################
 
