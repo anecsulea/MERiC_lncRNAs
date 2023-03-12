@@ -22,7 +22,7 @@ read.counts=round(read.counts)
 
 ########################################################################
 
-sampleinfo=read.table(paste(pathDifferentialExpression, "SampleInfo.txt", sep=""), h=T, stringsAsFactors=F,sep="\t")
+sampleinfo=read.table(paste(pathSampleInfo, "AnalyzedSamples.txt", sep=""), h=T, stringsAsFactors=F,sep="\t")
 
 print(paste("have reads for all samples: ",all(sampleinfo$BiopsyID%in%colnames(read.counts))))
 
