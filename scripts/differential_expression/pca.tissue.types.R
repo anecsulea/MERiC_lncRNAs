@@ -18,7 +18,7 @@ tpm=read.table(paste(pathExpression, annot, "/AllSamples_KallistoRawTPM.txt",sep
 
 ########################################################################
 
-sampleinfo=read.table(paste(pathDifferentialExpression, "AnalyzedSamples.txt", sep=""), h=T, stringsAsFactors=F,sep="\t")
+sampleinfo=read.table(paste(pathSampleInfo, "AnalyzedSamples.txt", sep=""), h=T, stringsAsFactors=F,sep="\t")
 
 col.samples=rep("gray40", nrow(sampleinfo))
 col.samples[which(sampleinfo$TissueType=="Tumor" & sampleinfo$EdmondsonGrade==1)]="yellow"
