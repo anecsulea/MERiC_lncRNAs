@@ -1,10 +1,11 @@
 ########################################################################
 
 pathResults="../../results/splicing_analysis/"
-pathDocs="../../docs"
+pathDocs="../../docs/"
+
+annot="AllTranscripts_Ensembl109"
 
 ########################################################################
-
 
 tumor.samples=read.table(paste(pathDocs, "TumorSamples_Ng2022.txt", sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
 tumor.samples=tumor.samples[which(tumor.samples$tumor_biopsyID!=""),]
@@ -32,7 +33,7 @@ sample.info.l=data.frame("BiopsyID"=liver.samples$biopsyID, "TissueType"=rep("Li
 
 sample.info=rbind(sample.info.t, sample.info.l)
 
-samples=sample.info$$BiopsyID
+samples=sample.info$BiopsyID
 
 ########################################################################
 
