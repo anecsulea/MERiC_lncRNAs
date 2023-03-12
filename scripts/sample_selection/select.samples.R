@@ -3,6 +3,7 @@
 pathDocs="../../docs/"
 pathExpression="../../results/expression_estimation/"
 pathSplicing="../../results/splicing_analysis/"
+pathResults="../../results/sample_info/"
 
 expdata="AllTranscripts_Ensembl109_noMT_norRNA_nohaplo"
 annot="AllTranscripts_Ensembl109"
@@ -55,7 +56,7 @@ sample.info$Selected[which(is.na(sample.info$NbExpressedGenes))]="No"
 
 ###########################################################################
 
-## select one sample per patient for DE - highest grade if several
+## select one sample per patient for DE - highest grade if several, highest number of genes if same grade
 
 sel=sample.info[which(sample.info$Selected=="Yes"),]
 sel=sel[order(sel$NbExpressedGenes, decreasing=T),]
