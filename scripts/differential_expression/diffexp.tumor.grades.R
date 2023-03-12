@@ -24,7 +24,7 @@ read.counts=round(read.counts)
 
 sampleinfo=read.table(paste(pathDifferentialExpression, "SampleInfo.txt", sep=""), h=T, stringsAsFactors=F,sep="\t")
 
-sampleinfo=sampleinfo[which(sampleinfo$BiopsyID%in%colnames(read.counts)),]
+print(paste("have reads for all samples: ",all(sampleinfo$BiopsyID%in%colnames(read.counts))))
 
 sampleinfo=sampleinfo[which(sampleinfo$TissueType=="Tumor"),]
 
