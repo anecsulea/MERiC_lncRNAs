@@ -4,6 +4,7 @@ pathExpression="../../results/expression_estimation/"
 pathDifferentialExpression="../../results/differential_expression/"
 pathAnnot="../../data/ensembl_annotations/"
 pathSampleInfo="../../results/sample_info/"
+pathDocs="../../docs/"
 pathResults="../../results/figures/analyses/"
 
 annot="AllTranscripts_Ensembl109_noMT_norRNA_nohaplo"
