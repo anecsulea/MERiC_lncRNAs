@@ -38,13 +38,13 @@ sample.info=rbind(sample.info.t, sample.info.l)
 
 ###########################################################################
 
-col.samples=rep("gray40", nrow(sampleinfo))
-col.samples[which(sampleinfo$TissueType=="Tumor" & sampleinfo$EdmondsonGrade==1)]="yellow"
-col.samples[which(sampleinfo$TissueType=="Tumor" & sampleinfo$EdmondsonGrade==2)]="orange"
-col.samples[which(sampleinfo$TissueType=="Tumor" & sampleinfo$EdmondsonGrade==3)]="darkorange"
-col.samples[which(sampleinfo$TissueType=="Tumor" & sampleinfo$EdmondsonGrade==4)]="red"
+col.samples=rep("gray40", nrow(sample.info))
+col.samples[which(sample.info$TissueType=="Tumor" & sample.info$EdmondsonGrade==1)]="yellow"
+col.samples[which(sample.info$TissueType=="Tumor" & sample.info$EdmondsonGrade==2)]="orange"
+col.samples[which(sample.info$TissueType=="Tumor" & sample.info$EdmondsonGrade==3)]="darkorange"
+col.samples[which(sample.info$TissueType=="Tumor" & sample.info$EdmondsonGrade==4)]="red"
 
-names(col.samples)=sampleinfo$BiopsyID
+names(col.samples)=sample.info$BiopsyID
 
 ########################################################################
 
