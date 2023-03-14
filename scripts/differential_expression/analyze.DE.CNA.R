@@ -89,7 +89,7 @@ compute.prop.cna <- function(recurrently.amp, recurrently.del, up.pc, up.lnc, do
 
 ####################################################################################
 
-for(test in c("Tumor_vs_Liver", "EdmondsonGrade_34_vs_12"){
+for(test in c("Tumor_vs_Liver", "EdmondsonGrade_34_vs_12")){
   
   deres=read.table(paste(pathResults,expdata, "/DifferentialExpression_",test,".txt", sep=""), h=T, stringsAsFactors=F, sep="\t")
   
