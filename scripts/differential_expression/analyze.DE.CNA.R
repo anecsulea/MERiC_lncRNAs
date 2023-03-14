@@ -49,7 +49,6 @@ pseudo=geneinfo$Gene.stable.ID[which(geneinfo$Gene.type%in%c("transcribed_unitar
 cna=read.table(paste(pathCNA, "GeneOverlap_",annot,"_CNA_AllExonv6_CRE.txt",sep=""), h=T, stringsAsFactors=F,sep="\t")
 cna$biotype=geneinfo[cna$GeneID, "Gene.type"]
 cna=cna[which(cna$Sample%in%sampleinfo$BiopsyID),]
-cna=cna[which(cna$GeneID%in%rownames(deres)),]
 
 amp=cna[which(cna$Type=="amp"),]
 del=cna[which(cna$Type=="del"),]
