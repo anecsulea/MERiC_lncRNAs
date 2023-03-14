@@ -36,20 +36,16 @@ else
     if [ -e ${pathR1} ]; then
 	echo "already in ${pathRNASeq}"
     else
-	if [ ${cluster} = "pbil" ]; then
-	    echo "downloading file from iRods"
-	    iget MERIC/data/TCGA/fastq_files/${dir}/${file}_R1.fq.gz ${pathRNASeq}/${dir}/
-	fi
+	echo "downloading file from iRods"
+	iget MERIC/data/TCGA/fastq_files/${dir}/${file}_R1.fq.gz ${pathRNASeq}/${dir}/
     fi
-
+    
      if [ -e ${pathR2} ]; then
-	echo "already in ${pathRNASeq}"
-    else
-	if [ ${cluster} = "pbil" ]; then
-	    echo "downloading file from iRods"
-	    iget MERIC/data/TCGA/fastq_files/${dir}/${file}_R2.fq.gz ${pathRNASeq}/${dir}/
-	fi
-    fi
+	 echo "already in ${pathRNASeq}"
+     else
+	echo "downloading file from iRods"
+	iget MERIC/data/TCGA/fastq_files/${dir}/${file}_R2.fq.gz ${pathRNASeq}/${dir}/
+     fi
 
     #############################################################################
 
@@ -79,12 +75,6 @@ else
     echo "rm ${pathR2}" >>  ${pathScripts}/bsub_script
     echo "fi" >>  ${pathScripts}/bsub_script
 
-    if [ ${cluster} = "cloud" ]; then
-	chmod a+x ${pathScripts}/bsub_script
-	${pathScripts}/bsub_script
-    fi
-
-    
     sbatch ${pathScripts}/bsub_script
 fi
 
