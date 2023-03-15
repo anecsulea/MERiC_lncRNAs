@@ -48,10 +48,16 @@ compute.prop.neighbors <- function(deres, neighbors, up.pc, up.lnc, down.pc, dow
     prop.up.pc.has.up.neighbor=length(which(unlist(lapply(signif.neighbors[up.pc], function(x) any(x%in%up.genes)))))/length(up.pc)
     prop.up.lnc.has.up.neighbor=length(which(unlist(lapply(signif.neighbors[up.lnc], function(x) any(x%in%up.genes)))))/length(up.lnc)
 
+    prop.up.pc.has.down.neighbor=length(which(unlist(lapply(signif.neighbors[up.pc], function(x) any(x%in%down.genes)))))/length(up.pc)
+    prop.up.lnc.has.down.neighbor=length(which(unlist(lapply(signif.neighbors[up.lnc], function(x) any(x%in%down.genes)))))/length(up.lnc)
+    
     prop.down.pc.has.down.neighbor=length(which(unlist(lapply(signif.neighbors[down.pc], function(x) any(x%in%down.genes)))))/length(down.pc)
     prop.down.lnc.has.down.neighbor=length(which(unlist(lapply(signif.neighbors[down.lnc], function(x) any(x%in%down.genes)))))/length(down.lnc)
 
-    results=list("pc.upup"=prop.up.pc.has.up.neighbor, "pc.downdown"=prop.down.pc.has.down.neighbor, "lnc.upup"=prop.up.lnc.has.up.neighbor, "lnc.downdown"=prop.down.lnc.has.down.neighbor)
+    prop.down.pc.has.up.neighbor=length(which(unlist(lapply(signif.neighbors[down.pc], function(x) any(x%in%up.genes)))))/length(down.pc)
+    prop.down.lnc.has.up.neighbor=length(which(unlist(lapply(signif.neighbors[down.lnc], function(x) any(x%in%up.genes)))))/length(down.lnc)
+
+    results=list("pc.upup"=prop.up.pc.has.up.neighbor, "pc.downdown"=prop.down.pc.has.down.neighbor, "lnc.upup"=prop.up.lnc.has.up.neighbor, "lnc.downdown"=prop.down.lnc.has.down.neighbor, "pc.updown"=prop.up.pc.has.down.neighbor, "lnc.updown"=prop.up.lnc.has.down.neighbor, "pc.downup"=prop.down.pc.has.up.neighbor, "lnc.downup"=prop.down.lnc.has.up.neighbor)
     return(results)
 }
 
