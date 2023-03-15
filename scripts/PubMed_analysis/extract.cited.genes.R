@@ -70,6 +70,6 @@ results=data.frame("GeneID"=cited.genes, "GeneName"=geneinfo[cited.genes,"Name"]
 
 results=results[order(results$NbCitations, decreasing=T),]
 
-write.table(paste(pathPubMed, "number_of_citations_hepatocellular_carcinoma_Title.txt", sep=""), row.names=F, col.names=T, sep="\t", quote=F)
+write.table(results, paste(pathPubMed, "number_of_citations_hepatocellular_carcinoma_Title.txt", sep=""), row.names=F, col.names=T, sep="\t", quote=F)
 
 ###############################################################################
