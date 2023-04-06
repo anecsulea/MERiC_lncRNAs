@@ -10,16 +10,25 @@ annot="AllTranscripts_Ensembl109"
 
 ###########################################################################
 
-tumor.samples=read.table(paste(pathDocs, "TumorSamples_Ng2022.txt", sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
-tumor.samples=tumor.samples[which(tumor.samples$tumor_biopsyID!=""),]
+sample.annot=read.table(paste(pathDocs, "SampleAnnotation_CN_AN.txt",sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
 
 ###########################################################################
 
-liver.samples=read.table(paste(pathDocs, "LiverSamples_Ng2022.txt", sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
-liver.samples=liver.samples[which(liver.samples$biopsyID!="POOL"),]
-liver.samples$PatientID=liver.samples$biopsyID
+ng.tumor.samples=read.table(paste(pathDocs, "TumorSamples_Ng2022.txt", sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
+ng.tumor.samples=tumor.samples[which(tumor.samples$tumor_biopsyID!=""),]
 
 ###########################################################################
+
+ng.liver.samples=read.table(paste(pathDocs, "LiverSamples_Ng2022.txt", sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
+ng.liver.samples=liver.samples[which(liver.samples$biopsyID!="POOL"),]
+ng.liver.samples$PatientID=liver.samples$biopsyID
+
+###########################################################################
+
+stop()
+
+###########################################################################
+
 
 sample.info.t=data.frame("BiopsyID"=tumor.samples$tumor_biopsyID, "TissueType"=rep("Tumor", nrow(tumor.samples)), "Sex"=tumor.samples$sex, "AgeAtBiopsy"=tumor.samples$age_at_biopsy, "EdmondsonGrade"=tumor.samples$edmondson, "Cirrhosis"=tumor.samples$cirrhosis, "Diseases"=tumor.samples$underlying_liver_disease, "PatientID"=tumor.samples$Patient_ID)
 
