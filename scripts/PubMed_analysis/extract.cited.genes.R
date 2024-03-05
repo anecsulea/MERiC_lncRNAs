@@ -25,13 +25,17 @@ articles=readLines(paste(pathPubMed, "formatted_results_hepatocellular_carcinoma
 
 ## each article has 8 fields
 
+###############################################################################
+
 pmid=unlist(lapply(articles[seq(from=1, to=length(articles), by=8)], function(x) unlist(strsplit(x, split="\\: "))[2]))
+
+hccarticle.year=as.numeric(unlist(lapply(articles[seq(from=4, to=length(articles), by=8)], function(x) unlist(strsplit(x, split="\\: "))[2])))
+
 
 hccarticle.genes=unlist(lapply(articles[seq(from=6, to=length(articles), by=8)], function(x) unlist(strsplit(x, split="\\: "))[2]))
 hccarticle.genes=lapply(hccarticle.genes, function(x) {y=unlist(strsplit(x, split=" ")); return(y[seq(from=1, to=length(y), by=2)])})
 
 hccarticle.lnc=unlist(lapply(articles[seq(from=7, to=length(articles), by=8)], function(x) unlist(strsplit(x, split="\\: "))[2]))
-hccarticle.year=unlist(lapply(articles[seq(from=4, to=length(articles), by=8)], function(x) unlist(strsplit(x, split="\\: "))[2]))
 
 cited.genes=unique(unlist(hccarticle.genes))
 cited.genes=setdiff(cited.genes, NA)
@@ -71,5 +75,20 @@ results=data.frame("GeneID"=cited.genes, "GeneName"=geneinfo[cited.genes,"Name"]
 results=results[order(results$NbCitations, decreasing=T),]
 
 write.table(results, paste(pathPubMed, "number_of_citations_hepatocellular_carcinoma_Title.txt", sep=""), row.names=F, col.names=T, sep="\t", quote=F)
+
+###############################################################################
+
+## retracted articles
+
+retracted=readLines(paste(pathPubMed, "formatted_results_retracted_hepatocellular_carcinoma_Title.txt", sep=""))
+
+###############################################################################
+
+## each article has 8 fields
+
+pmid.retracted=unlist(lapply(retracted[seq(from=1, to=length(retracted), by=8)], function(x) unlist(strsplit(x, split="\\: "))[2]))
+
+retractedarticle.lnc=unlist(lapply(retracted[seq(from=7, to=length(retracted), by=8)], function(x) unlist(strsplit(x, split="\\: "))[2]))
+retractedarticle.year=unlist(lapply(retracted[seq(from=4, to=length(retracted), by=8)], function(x) unlist(strsplit(x, split="\\: "))[2]))
 
 ###############################################################################
