@@ -21,7 +21,7 @@ done
 
 #####################################################################
 
-perl ${pathScripts}/parse.PubMed.results.pl --pathPubMedResults=${pathsPubMed} --pathGeneInfo=${pathEnsembl}/GeneInfo_Ensembl${release}.txt --pathGeneNames=${pathEnsembl}/GeneInfo_Ensembl${release}.txt --pathSynonyms=${pathEnsembl}/GeneNameSynonyms_Ensembl${release}.txt --pathForbiddenGenes=${pathResults}/forbidden_genes.txt  --pathOutput=${pathResults}/formatted_results_hepatocellular_carcinoma_Title.txt
+perl ${pathScripts}/parse.PubMed.results.pl --citationType="normal" --pathPubMedResults=${pathsPubMed} --pathGeneInfo=${pathEnsembl}/GeneInfo_Ensembl${release}.txt --pathGeneNames=${pathEnsembl}/GeneInfo_Ensembl${release}.txt --pathSynonyms=${pathEnsembl}/GeneNameSynonyms_Ensembl${release}.txt --pathForbiddenGenes=${pathResults}/forbidden_genes.txt  --pathOutput=${pathResults}/formatted_results_hepatocellular_carcinoma_Title.txt
 
 #####################################################################
 ### retracted results
@@ -35,6 +35,6 @@ done
 
 #####################################################################
 
-perl ${pathScripts}/parse.PubMed.results.pl --pathPubMedResults=${pathsPubMed} --pathGeneInfo=${pathEnsembl}/GeneInfo_Ensembl${release}.txt --pathGeneNames=${pathEnsembl}/GeneInfo_Ensembl${release}.txt --pathSynonyms=${pathEnsembl}/GeneNameSynonyms_Ensembl${release}.txt --pathForbiddenGenes=${pathResults}/forbidden_genes.txt  --pathOutput=${pathResults}/formatted_results_retracted_hepatocellular_carcinoma_Title.txt
+perl ${pathScripts}/parse.PubMed.results.pl --citationType="retraction" --pathPubMedResults=${pathsPubMed} --pathGeneInfo=${pathEnsembl}/GeneInfo_Ensembl${release}.txt --pathGeneNames=${pathEnsembl}/GeneInfo_Ensembl${release}.txt --pathSynonyms=${pathEnsembl}/GeneNameSynonyms_Ensembl${release}.txt --pathForbiddenGenes=${pathResults}/forbidden_genes.txt  --pathOutput=${pathResults}/formatted_results_retracted_hepatocellular_carcinoma_Title.txt
 
 #####################################################################

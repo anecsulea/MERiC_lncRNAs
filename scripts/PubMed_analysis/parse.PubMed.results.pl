@@ -187,8 +187,25 @@ sub readForbiddenGenes{
 
 sub parsePubMedResults{
     my $pathin=$_[0];
-    my $results=$_[1];
+    my $type=$_[1];
+    my $results=$_[2];
 
+    my $nbeabstract=4;
+    my $nbetitle=1;
+    my $indexjournal=0;
+    my $splitjournal=1;
+    
+    if($type eq "retraction"){
+	$nbeabstract=6;
+	$nbetitle=2;
+	$indexjournal=2;
+	$splitjournal=0;
+    }
+
+    print "Abstract should be the ".$nbeabstract."th entry in this file\n";
+    print "Title should be on line ".$nbetitle." in this file\n";
+
+    
     my @lines;
     open(my $input, $pathin);
     my $line=<$input>;
@@ -230,10 +247,10 @@ sub parsePubMedResults{
 	    $lastindex=$entryindexes{$entry+1}-1;
 	}
 
-	my $firstline=$lines[$firstindex];
+	my $firstline=$lines[$firstindex+$indexjournal];
 	my @s=split("\\.", $firstline);
-	my $journal=$s[1];
-	my @date=split(" ", $s[2]);
+	my $journal=$s[$splitjournal];
+	my @date=split(" ", $s[$splitjournal+1]);
 	my @yearinfo=split(";", $date[0]);
 	my @yyinfo=split(":", $yearinfo[0]);
 	my @yyyinfo=split("-", $yyinfo[0]);
@@ -259,10 +276,11 @@ sub parsePubMedResults{
 	    my $currentemptyline=0;
 	    
 	    for(my $i=$firstindex; $i<=$lastindex; $i++){
+		
 		if($lines[$i] eq ""){
 		    $currentemptyline++;
 		} else{
-		    if($currentemptyline==1){
+		    if($currentemptyline==$nbetitle){
 			if($title eq ""){
 			    $title=$lines[$i];
 			} else{
@@ -271,8 +289,8 @@ sub parsePubMedResults{
 		    }
 		    my @st=split(":", $lines[$i]);
 		    my $prefix=$st[0];
-		    		    
-		    if($currentemptyline==4){
+
+		    if($currentemptyline==$nbeabstract){
 			if($prefix ne "DOI" && $prefix ne "PMCID" && $prefix ne "PMID"){
 			    $nbabstractlines++;
 
@@ -469,6 +487,7 @@ sub printHelp{
 
 my %parameters;
 
+$parameters{"citationType"}="NA";
 $parameters{"pathPubMedResults"}="NA";
 $parameters{"pathGeneInfo"}="NA";
 $parameters{"pathGeneNames"}="NA";
@@ -477,7 +496,7 @@ $parameters{"pathForbiddenGenes"}="NA";
 $parameters{"pathOutput"}="NA";
 
 my %defaultvalues;
-my @defaultpars=("pathPubMedResults", "pathGeneInfo", "pathGeneNames", "pathSynonyms", "pathForbiddenGenes", "pathOutput");
+my @defaultpars=("citationType","pathPubMedResults", "pathGeneInfo", "pathGeneNames", "pathSynonyms", "pathForbiddenGenes", "pathOutput");
 
 my %numericpars;
 
@@ -525,9 +544,11 @@ my %results;
 
 my @paths=split(",", $parameters{"pathPubMedResults"});
 
+my $type=$parameters{"citationType"};
+
 foreach my $path (@paths){
     print "Reading info from ".$path."\n";
-    parsePubMedResults($path, \%results);
+    parsePubMedResults($path, $type, \%results);
 }
 
 print "Done.\n";
