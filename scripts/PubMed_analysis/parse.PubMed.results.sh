@@ -14,7 +14,7 @@ export release=109
 
 export pathsPubMed=""
 
-for file in `ls ${pathResults} | grep hepatocellular_carcinoma_Title`
+for file in `ls ${pathResults} | grep ^hepatocellular_carcinoma_Title`
 do
     export pathsPubMed=${pathResults}/${file},${pathsPubMed}
 done
