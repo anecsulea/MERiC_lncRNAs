@@ -14,6 +14,6 @@ export date="11_03_2024"
 
 #####################################################################
 
-perl ${pathScripts}/parse.PubMed.results.medline.pl --pathPubMedResults=${pathResults}/PubMed_hepatocellular_carcinoma_Title_${date}.medline --pathGeneInfo=${pathEnsembl}/GeneInfo_Ensembl${release}.txt --pathGeneNames=${pathEnsembl}/GeneInfo_Ensembl${release}.txt --pathSynonyms=${pathEnsembl}/GeneNameSynonyms_Ensembl${release}.txt --pathForbiddenGenes=${pathResults}/forbidden_genes.txt  --pathOutput=${pathResults}/PubMed_hepatocellular_carcinoma_Title_${date}.txt
+perl ${pathScripts}/parse.PubMed.results.medline.pl --pathPubMedResults=${pathResults}/PubMed_hepatocellular_carcinoma_Title_${date}.medline --pathGeneInfo=${pathEnsembl}/GeneInfo_Ensembl${release}.txt --pathGeneNames=${pathEnsembl}/GeneInfo_Ensembl${release}.txt --pathSynonyms=${pathEnsembl}/GeneNameSynonyms_Ensembl${release}.txt --pathForbiddenGenes=${pathResults}/forbidden_genes.txt  --pathDetailedOutput=${pathResults}/PubMed_hepatocellular_carcinoma_Title_${date}.txt --pathTSVOutput=${pathResults}/PubMed_hepatocellular_carcinoma_Title_${date}.tsv
 
 #####################################################################

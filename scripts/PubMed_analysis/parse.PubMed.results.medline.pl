@@ -201,17 +201,15 @@ sub parsePubMedResults{
 
 	my $prefix=substr $line,0,5;
 	my $restofline=substr $line, 6;
-
-	# if($prefix eq "     "){
-	#     print "found empty prefix, last prefix ".$lastfield."\n";
-	# }
-
-	## keep track of the last info we saw
-
 	    
 	if($prefix eq "PMID-"){
 	    $currentpmid=$restofline;
 
+	    if(exists $results->{$currentpmid}){
+		print "weird! already saw ".$currentpmid."\n";
+		exit(1);
+	    }
+	    
 	    ## initialize PubMed id
 	    $results->{$currentpmid}={"abstract"=>"", "title"=>"", "journal"=>"",  "type"=>"", "year"=>""};
 	}
@@ -238,7 +236,15 @@ sub parsePubMedResults{
 	
 	## entry type
 	if($prefix eq "PT  -"){
-	    $results->{$currentpmid}{"type"}=$restofline;
+	    ## for Retracted publication there may be two PT; we keep the retraction ifno 
+	    if($restofline eq "Retracted Publication"){
+		$results->{$currentpmid}{"type"}=$restofline;
+	    } else{
+		## otherwise, if entry type has already been filled, keep the first field
+		if($results->{$currentpmid}{"type"} eq ""){
+		    $results->{$currentpmid}{"type"}=$restofline;
+		}
+	    }
 	}
 
 	## journal name
@@ -253,6 +259,8 @@ sub parsePubMedResults{
 	    $results->{$currentpmid}{"year"}=$year;
 	}
 	
+	## keep track of the last info we saw
+
 	if($prefix ne "     "){
 	    $lastfield=$prefix;
 	}
@@ -343,6 +351,7 @@ sub writeOutput{
 	print $output "PMID: ".$pmid."\n";
 	print $output "Title: ".$results->{$pmid}{"title"}."\n";
 	print $output "Journal: ".$results->{$pmid}{"journal"}."\n";
+	print $output "Type: ".$results->{$pmid}{"type"}."\n";
 	print $output "Year: ".$results->{$pmid}{"year"}."\n";
 	print $output "Abstract: ". $results->{$pmid}{"abstract"}."\n";
 
@@ -381,6 +390,27 @@ sub writeOutput{
     close($output);
 }
 
+##############################################################
+
+sub writeTSVOutput{
+    my $results=$_[0];
+    my $pathout=$_[1];
+
+    open(my $output, ">".$pathout);
+    
+    print $output "PMID\tJournal\tYear\tPublicationType\tCitedGenes\n";
+    
+    foreach my $pmid (keys %{$results}){
+
+	my $line=$pmid."\t".$results->{$pmid}{"journal"}."\t".$results->{$pmid}{"year"}."\t".$results->{$pmid}{"type"};
+
+	$line.="\t".join(";", keys %{$results->{$pmid}{"geneids"}});
+
+	print $output $line."\n";
+    }
+
+    close($output);
+}
 
 ##############################################################
 
@@ -411,10 +441,11 @@ $parameters{"pathGeneInfo"}="NA";
 $parameters{"pathGeneNames"}="NA";
 $parameters{"pathSynonyms"}="NA";
 $parameters{"pathForbiddenGenes"}="NA";
-$parameters{"pathOutput"}="NA";
+$parameters{"pathDetailedOutput"}="NA";
+$parameters{"pathTSVOutput"}="NA";
 
 my %defaultvalues;
-my @defaultpars=("pathPubMedResults", "pathGeneInfo", "pathGeneNames", "pathSynonyms", "pathForbiddenGenes", "pathOutput");
+my @defaultpars=("pathPubMedResults", "pathGeneInfo", "pathGeneNames", "pathSynonyms", "pathForbiddenGenes", "pathDetailedOutput", "pathTSVOutput");
 
 my %numericpars;
 
@@ -545,32 +576,15 @@ my %nbocc;
 
 extractAssociatedGenes(\%results, \%genenames, \%synonyms, \%forbidden, \%nbocc);
 
-# statistics for numbers of genes
-# my %nbgenesocc;
-
-# foreach my $gene (keys %nbocc){
-#     my $nb=$nbocc{$gene};
-
-#     if(exists $nbgenesocc{$nb}){
-# 	push(@{$nbgenesocc{$nb}}, $gene);
-#     } else{
-# 	$nbgenesocc{$nb}=[$gene];
-#     }
-# }
-
-# my @nbocc=sort {$a<=>$b} (keys %nbgenesocc);
-
-# foreach my $nb (reverse @nbocc){
-#     print $nb." ".join(", ", @{$nbgenesocc{$nb}})."\n";
-# }
-
 print "Done.\n";
 
 #####################################################################
    
 print "Writing output...\n";
 
-writeOutput(\%results, \%reversenames, $parameters{"pathOutput"});
+writeOutput(\%results, \%reversenames, $parameters{"pathDetailedOutput"});
+
+writeTSVOutput(\%results,  $parameters{"pathTSVOutput"});
 
 print "Done.\n";
 
