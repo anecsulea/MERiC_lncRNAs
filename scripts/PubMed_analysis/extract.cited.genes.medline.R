@@ -38,5 +38,8 @@ articles=articles[which(articles$CitedGenes!=""),]
 
 print(paste(nrow(articles), "articles after removing those that do not cite genes"))
 
-
 ###############################################################################
+
+## check if article cites lncRNAs
+
+articles$CitedLnc=unlist(lapply(articles$CitedGenes, function(x) paste(intersect(unlist(strsplit(x, split=";")), ensembl.lnc), collapse=";")))
