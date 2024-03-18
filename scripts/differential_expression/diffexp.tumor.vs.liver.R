@@ -16,52 +16,84 @@ annot="AllTranscripts_Ensembl109_noMT_norRNA_nohaplo"
 
 ########################################################################
 
+load(paste(pathRData, "data.sample.info.RData",sep=""))
+
+########################################################################
+
 read.counts=read.table(paste(pathExpression, annot, "/AllSamples_KallistoEstimatedCounts.txt",sep=""), h=T, stringsAsFactors=F)
 
 read.counts=round(read.counts)
 
 ########################################################################
 
-sampleinfo=read.table(paste(pathSampleInfo, "AnalyzedSamples.txt", sep=""), h=T, stringsAsFactors=F, sep="\t")
+## get read counts for each gene
 
-print(paste("have reads for all samples: ",all(sampleinfo$BiopsyID%in%colnames(read.counts))))
+read.counts=read.table(paste(pathExpression, annot, "/AllSamples_KallistoEstimatedCounts.txt",sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
 
-read.counts=read.counts[,sampleinfo$BiopsyID]
+total.estimated.counts=apply(read.counts,2,sum)
+
+tumor.samples$total.estimated.counts=total.estimated.counts[tumor.samples$tumor_biopsyID]
+
+## order samples by read count and Edmondson degree
+tumor.samples=tumor.samples[order(tumor.samples$total.estimated.counts, decreasing=T),]
+
+tumor.samples=tumor.samples[order(tumor.samples$edmondson, decreasing=T),]
+
+## select one sample per patient
+
+dupli=which(duplicated(tumor.samples$Patient_ID))
+
+if(length(dupli)>0){
+    tumor.samples=tumor.samples[-dupli,]
+}
 
 ########################################################################
 
-geneinfo=read.table(paste(pathAnnot, "GeneInfo_Ensembl109.txt", sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
+## get tx2gene info
 
-geneinfo=geneinfo[which(geneinfo$Gene.stable.ID%in%rownames(read.counts)),]
+samples=tumor.samples$tumor_biopsyID
 
-pc=geneinfo$Gene.stable.ID[which(geneinfo$Gene.type=="protein_coding")]
+sinfo=read.table(paste(pathExpression, annot, "/",samples[1],"/abundance.tsv",sep=""), h=T, stringsAsFactors=F)
+geneid=unlist(lapply(sinfo$target_id, function(x) unlist(strsplit(x, split=":"))[1]))
 
-lnc=geneinfo$Gene.stable.ID[which(geneinfo$Gene.type=="lncRNA")]
-
-pseudo=geneinfo$Gene.stable.ID[which(geneinfo$Gene.type%in%c("transcribed_unitary_pseudogene", "transcribed_unprocessed_pseudogene"))]
-
-read.counts=read.counts[c(pc, lnc, pseudo),]
+tx2gene=data.frame("txid"=sinfo$target_id, "geneid"=geneid)
 
 ########################################################################
 
-colData=data.frame("Sex"=as.factor(sampleinfo$Sex), "Tissue"=as.factor(sampleinfo$TissueType))
+## assemble kallisto counts
+
+samples=c(tumor.samples$tumor_biopsyID, liver.samples$biopsyID)
+
+files=paste(pathExpression, "/", annot,"/", samples, "/abundance.h5", sep="")
+names(files)=samples
+
+txi.kallisto <- tximport(files, type = "kallisto", tx2gene = tx2gene)
+
+########################################################################
+## prepare col data
+
+sex=c(tumor.samples$sex, liver.samples$sex)
+
+tissue=c(rep("Tumor", nrow(tumor.samples)), rep("Liver", nrow(liver.samples)))
+
+colData=data.frame("Sex"=as.factor(sex), "Tissue"=as.factor(tissue))
 
 dds=DESeqDataSetFromMatrix(read.counts, colData=colData, design = ~Sex+Tissue)
 
-dds=DESeq(dds, test="Wald",  minReplicatesForReplace=10, parallel=T)
+dds=DESeq(dds, test="Wald",  minReplicatesForReplace=100, parallel=T)
 
 ########################################################################
 
-res.tissue.reduced=results(dds, contrast=c("Tissue", "Tumor", "Liver"))
+results=results(dds, contrast=c("Tissue", "Tumor", "Liver"))
 
-res.tissue.reduced=lfcShrink(dds, coef="Tissue_Tumor_vs_Liver", res=res.tissue.reduced, type="apeglm")
+results=lfcShrink(dds, coef="Tissue_Tumor_vs_Liver", res=results, type="apeglm")
 
-res.tissue.reduced=as.data.frame(res.tissue.reduced)
+results=as.data.frame(results)
 
-res.tissue.reduced=res.tissue.reduced[order(res.tissue.reduced$padj),]
+results=results[order(results$padj),]
 
 ########################################################################
 
-write.table(res.tissue.reduced, file=paste(pathDifferentialExpression, annot, "/DifferentialExpression_Tumor_vs_Liver.txt",sep=""), row.names=T, col.names=T, sep="\t", quote=F)
+write.table(results, file=paste(pathDifferentialExpression, annot, "/DifferentialExpression_Tumor_vs_Liver.txt",sep=""), row.names=T, col.names=T, sep="\t", quote=F)
 
 ########################################################################
