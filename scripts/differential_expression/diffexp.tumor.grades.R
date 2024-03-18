@@ -21,8 +21,6 @@ load(paste(pathRData, "data.sample.info.RData",sep=""))
 
 ########################################################################
 
-########################################################################
-
 ## get read counts for each gene
 
 read.counts=read.table(paste(pathExpression, annot, "/AllSamples_KallistoEstimatedCounts.txt",sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
@@ -48,6 +46,8 @@ if(length(dupli)>0){
 
 ## get tx2gene info
 
+samples=tumor.samples$tumor_biopsyID
+
 sinfo=read.table(paste(pathExpression, annot, "/",samples[1],"/abundance.tsv",sep=""), h=T, stringsAsFactors=F)
 geneid=unlist(lapply(sinfo$target_id, function(x) unlist(strsplit(x, split=":"))[1]))
 
@@ -56,8 +56,6 @@ tx2gene=data.frame("txid"=sinfo$target_id, "geneid"=geneid)
 ########################################################################
 
 ## assemble kallisto counts
-
-samples=tumor.samples$tumor_biopsyID
 
 files=paste(pathExpression, "/", annot,"/", samples, "/abundance.h5", sep="")
 names(files)=samples
@@ -70,14 +68,14 @@ txi.kallisto <- tximport(files, type = "kallisto", tx2gene = tx2gene)
 
 eg=rep(NA, nrow(tumor.samples))
 
-eg[which(tumor.samples$EdmondsonGrade%in%c(1,2))]="12"
-eg[which(tumor.samples$EdmondsonGrade%in%c(3,4))]="34"
+eg[which(tumor.samples$edmondson%in%c(1,2))]="12"
+eg[which(tumor.samples$edmondson%in%c(3,4))]="34"
 
 colData=data.frame("Sex"=as.factor(tumor.samples$sex), "EdmondsonGrade"=eg)
 
-dds=DESeqDataSetFromTximport(read.counts, colData=colData, design = ~Sex+EdmondsonGrade)
+dds=DESeqDataSetFromTximport(txi.kallisto, colData=colData, design = ~Sex+EdmondsonGrade)
 
-dds=DESeq(dds, test="Wald",  minReplicatesForReplace=10, parallel=T)
+dds=DESeq(dds, test="Wald",  minReplicatesForReplace=50, parallel=T)
 
 ########################################################################
 
