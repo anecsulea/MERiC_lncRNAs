@@ -1,12 +1,7 @@
 ###########################################################################
 
 pathDocs="../../docs/"
-pathExpression="../../results/expression_estimation/"
-pathSplicing="../../results/splicing_analysis/"
-pathResults="../../results/sample_info/"
-
-expdata="AllTranscripts_Ensembl109_noMT_norRNA_nohaplo"
-annot="AllTranscripts_Ensembl109"
+pathRData="../../RData/"
 
 ###########################################################################
 
@@ -14,80 +9,26 @@ sample.annot=read.table(paste(pathDocs, "SampleAnnotation_CN_AN.txt",sep=""), h=
 
 ###########################################################################
 
-ng.tumor.samples=read.table(paste(pathDocs, "TumorSamples_Ng2022.txt", sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
-ng.tumor.samples=tumor.samples[which(tumor.samples$tumor_biopsyID!=""),]
+tumor.samples=read.table(paste(pathDocs, "TumorSamples_Ng2022.txt", sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
+tumor.samples=tumor.samples[which(tumor.samples$tumor_biopsyID!=""),]
+
+selected.columns=c("tumor_biopsyID" , "Patient_ID", "sex", "age_at_biopsy", "bclc", "cirrhosis", "child", "meld", "underlying_liver_disease", "number.of.tumors", "macro_vascular_invasion", "metastasis", "tumor_location", "edmondson", "percent_tumor", "immunophenotype")
+
+tumor.samples=tumor.samples[,selected.columns]
 
 ###########################################################################
 
-ng.liver.samples=read.table(paste(pathDocs, "LiverSamples_Ng2022.txt", sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
-ng.liver.samples=liver.samples[which(liver.samples$biopsyID!="POOL"),]
-ng.liver.samples$PatientID=liver.samples$biopsyID
+liver.samples=read.table(paste(pathDocs, "LiverSamples_Ng2022.txt", sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
+liver.samples=liver.samples[which(liver.samples$biopsyID!="POOL"),]
+liver.samples=liver.samples[which(liver.samples$RNAseq=="Y"),]
+
+selected.columns=c("biopsyID", "sex", "age_at_biopsy", "normal_liver_quality")
+
+liver.samples=liver.samples[,selected.columns]
 
 ###########################################################################
 
-stop()
+save(list=c("tumor.samples", "liver.samples"), file=paste(pathRData, "data.sample.info.RData",sep=""))
 
 ###########################################################################
 
-
-sample.info.t=data.frame("BiopsyID"=tumor.samples$tumor_biopsyID, "TissueType"=rep("Tumor", nrow(tumor.samples)), "Sex"=tumor.samples$sex, "AgeAtBiopsy"=tumor.samples$age_at_biopsy, "EdmondsonGrade"=tumor.samples$edmondson, "Cirrhosis"=tumor.samples$cirrhosis, "Diseases"=tumor.samples$underlying_liver_disease, "PatientID"=tumor.samples$Patient_ID)
-
-sample.info.l=data.frame("BiopsyID"=liver.samples$biopsyID, "TissueType"=rep("Liver", nrow(liver.samples)), "Sex"=liver.samples$sex, "AgeAtBiopsy"=liver.samples$age_at_biopsy, "EdmondsonGrade"=rep(NA, nrow(liver.samples)), "Cirrhosis"=rep(NA, nrow(liver.samples)), "Diseases"=rep(NA, nrow(liver.samples)), "PatientID"=liver.samples$PatientID)
-
-sample.info=rbind(sample.info.t, sample.info.l)
-
-###########################################################################
-
-tpm=read.table(paste(pathExpression, expdata, "/AllSamples_KallistoRawTPM.txt",sep=""),h=T, stringsAsFactors=F)
-
-nb.exp.genes=apply(tpm,2,function(x) length(which(x>=1)))
-names(nb.exp.genes)=colnames(tpm)
-
-###########################################################################
-
-ir=read.table(paste(pathSplicing, "/AllSamples_IntronExonRatio_", annot, ".txt", sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
-rownames(ir)=ir$GeneID
-ir=ir[,which(colnames(ir)!="GeneID")]
-
-median.ir=apply(ir,2, median, na.rm=T)
-names(median.ir)=colnames(ir)
-
-###########################################################################
-
-sample.info$NbExpressedGenes=nb.exp.genes[sample.info$BiopsyID]
-sample.info$MedianIntronExonRatio=median.ir[sample.info$BiopsyID]
-
-###########################################################################
-
-sample.info$Selected=rep("Yes", nrow(sample.info))
-sample.info$Selected[which(sample.info$MedianIntronExonRatio>=0.15)]="No"
-sample.info$Selected[which(is.na(sample.info$NbExpressedGenes))]="No"
-
-###########################################################################
-
-## select one sample per patient for DE - highest grade if several, highest number of genes if same grade
-
-sel=sample.info[which(sample.info$Selected=="Yes"),]
-sel=sel[order(sel$NbExpressedGenes, decreasing=T),]
-sel=sel[order(sel$EdmondsonGrade, decreasing=T),]
-dupli=which(duplicated(sel$PatientID))
-
-if(length(dupli)>0){
-    print("keeping one sample per patient")
-    id.dupli=sel$BiopsyID[dupli]
-    sample.info[which(sample.info$BiopsyID%in%id.dupli), "Selected"]="No"
-}
-
-###########################################################################
-
-write.table(sample.info, paste(pathResults, "AllSampleInfo.txt", sep=""), row.names=F, col.names=T, sep="\t", quote=F)
-
-###########################################################################
-
-selected.info=sample.info[which(sample.info$Selected=="Yes"),]
-selected.info=selected.info[,which(!colnames(selected.info)%in%c("Selected"))]
-selected.info$PatientID[which(selected.info$TissueType=="Liver")]=NA
-
-write.table(selected.info, paste(pathResults, "AnalyzedSamples.txt", sep=""), row.names=F, col.names=T, sep="\t", quote=F)
-
-###########################################################################
