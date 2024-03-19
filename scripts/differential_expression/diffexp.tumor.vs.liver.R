@@ -9,8 +9,7 @@ register(MulticoreParam(4))
 
 pathExpression="../../results/expression_estimation/"
 pathDifferentialExpression="../../results/differential_expression/"
-pathAnnot="../../data/ensembl_annotations/"
-pathSampleInfo="../../results/sample_info/"
+pathRData="../../data_for_publication/RData/"
 
 annot="AllTranscripts_Ensembl109_noMT_norRNA_nohaplo"
 
