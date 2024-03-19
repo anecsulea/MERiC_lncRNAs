@@ -3,7 +3,7 @@
 pathEnsembl="../../data/ensembl_annotations/"
 pathRData="../../data_for_publication/RData/"
 
-release=103
+release=109
 
 ##########################################################################
 
