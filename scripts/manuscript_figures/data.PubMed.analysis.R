@@ -53,7 +53,7 @@ names(nb.citations.lnc)=levels(as.factor(all.cited.lnc))
 
 ##########################################################################
 
-save(list=c("pubs", "all.cited.pc", "all.cited.lnc"), file=paste(pathRData, "data.PubMed.analysis.RData",sep=""))
+save(list=c("pubs", "all.cited.pc", "all.cited.lnc", "nb.citations.pc", "nb.citations.lnc"), file=paste(pathRData, "data.PubMed.analysis.RData",sep=""))
 
 ##########################################################################
 
