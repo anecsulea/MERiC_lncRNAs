@@ -2,6 +2,7 @@
 
 library(DESeq2)
 library(BiocParallel)
+library(tximport)
 
 register(MulticoreParam(4))
 
