@@ -8,94 +8,94 @@ release=109
 ###############################################################################
 
 if(redo){
-geneinfo=read.table(paste(pathEnsembl, "GeneInfo_Ensembl",release, ".txt", sep=""), h=T, sep="\t", stringsAsFactors=F, quote="\"")
+    geneinfo=read.table(paste(pathEnsembl, "GeneInfo_Ensembl",release, ".txt", sep=""), h=T, sep="\t", stringsAsFactors=F, quote="\"")
 
-colnames(geneinfo)=c("ID", "Name", "Chr", "Start", "End", "Strand", "Biotype")
-rownames(geneinfo)=geneinfo$ID
-
-###############################################################################
-
-ensembl.lnc=geneinfo$ID[which(geneinfo$Biotype=="lncRNA")]
-ensembl.pc=geneinfo$ID[which(geneinfo$Biotype=="protein_coding")]
+    colnames(geneinfo)=c("ID", "Name", "Chr", "Start", "End", "Strand", "Biotype")
+    rownames(geneinfo)=geneinfo$ID
 
 ###############################################################################
 
-pubs=read.table(paste(pathPubMed, "PubMed_hepatocellular_carcinoma_Title_11_03_2024.tsv", sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
-
-print(paste(nrow(pubs), "publications initially"))
-
-###############################################################################
-## filter entries
-
-## keep only "Journal Article" and "Retracted Publication"
-
-pubs=pubs[which(pubs$PublicationType%in%c("Journal Article", "Retracted Publication")),]
-
-print(paste(nrow(pubs), "pubs after filtering types"))
-
-## keep only pubs that cite genes
-
-pubs=pubs[which(pubs$CitedGenes!=""),]
-
-print(paste(nrow(pubs), "pubs after removing those that do not cite genes"))
+    ensembl.lnc=geneinfo$ID[which(geneinfo$Biotype=="lncRNA")]
+    ensembl.pc=geneinfo$ID[which(geneinfo$Biotype=="protein_coding")]
 
 ###############################################################################
 
-## keep only pubs between 2000 and 2022
-## 2023 : very few retractions, they may not have had time
+    pubs=read.table(paste(pathPubMed, "PubMed_hepatocellular_carcinoma_Title_11_03_2024.tsv", sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
 
-pubs$Year=as.numeric(pubs$Year)
-pubs=pubs[which(pubs$Year>=2000 & pubs$Year<=2022),]
+    print(paste(nrow(pubs), "publications initially"))
+
+###############################################################################
+    ## filter entries
+
+    ## keep only "Journal Article" and "Retracted Publication"
+
+    pubs=pubs[which(pubs$PublicationType%in%c("Journal Article", "Retracted Publication")),]
+
+    print(paste(nrow(pubs), "pubs after filtering types"))
+
+    ## keep only pubs that cite genes
+
+    pubs=pubs[which(pubs$CitedGenes!=""),]
+
+    print(paste(nrow(pubs), "pubs after removing those that do not cite genes"))
 
 ###############################################################################
 
-## check if article cites lncRNAs
+    ## keep only pubs between 2000 and 2022
+    ## 2023 : very few retractions, they may not have had time
 
-pubs$CitedLnc=unlist(lapply(pubs$CitedGenes, function(x) paste(intersect(unlist(strsplit(x, split=";")), ensembl.lnc), collapse=";")))
-pubs$CitedPc=unlist(lapply(pubs$CitedGenes, function(x) paste(intersect(unlist(strsplit(x, split=";")), ensembl.pc), collapse=";")))
-
-###############################################################################
-
-## divide into articles and retracted articles
-
-articles=pubs[which(pubs$PublicationType=="Journal Article"),]
-retractions=pubs[which(pubs$PublicationType=="Retracted Publication"),]
+    pubs$Year=as.numeric(pubs$Year)
+    pubs=pubs[which(pubs$Year>=2000 & pubs$Year<=2022),]
 
 ###############################################################################
 
-## statistics per year
+    ## check if article cites lncRNAs
 
-years=2000:2022
+    pubs$CitedLnc=unlist(lapply(pubs$CitedGenes, function(x) paste(intersect(unlist(strsplit(x, split=";")), ensembl.lnc), collapse=";")))
+    pubs$CitedPc=unlist(lapply(pubs$CitedGenes, function(x) paste(intersect(unlist(strsplit(x, split=";")), ensembl.pc), collapse=";")))
 
-nb.articles.per.year=table(factor(articles$Year, levels=2000:2022))
-nb.retractions.per.year=table(factor(retractions$Year, levels=2000:2022))
-nb.pubs.per.year=nb.articles.per.year+nb.retractions.per.year
+###############################################################################
 
-nb.other.articles.per.year=table(factor(articles$Year[which(articles$CitedLnc=="")], levels=2000:2022))
-nb.other.retractions.per.year=table(factor(retractions$Year[which(retractions$CitedLnc=="")], levels=2000:2022))
-nb.other.pubs.per.year=nb.other.articles.per.year+nb.other.retractions.per.year
+    ## divide into articles and retracted articles
 
-nb.lncRNA.articles.per.year=table(factor(articles$Year[which(articles$CitedLnc!="")], levels=2000:2022))
-nb.lncRNA.retractions.per.year=table(factor(retractions$Year[which(retractions$CitedLnc!="")], levels=2000:2022))
-nb.lncRNA.pubs.per.year=nb.lncRNA.articles.per.year+nb.lncRNA.retractions.per.year
+    articles=pubs[which(pubs$PublicationType=="Journal Article"),]
+    retractions=pubs[which(pubs$PublicationType=="Retracted Publication"),]
 
-## proportion of publications that cite lncRNA
+###############################################################################
 
-prop.pubs.lncRNAs.per.year=nb.lncRNA.pubs.per.year/nb.pubs.per.year
+    ## statistics per year
 
-## proportion of not-retracted articles that cite lncRNAs
-prop.articles.lncRNAs.per.year=nb.lncRNA.articles.per.year/nb.articles.per.year
+    years=2000:2022
 
-## proportion of retracted articles that cite lncRNAs
-prop.retractions.lncRNAs.per.year=nb.lncRNA.retractions.per.year/nb.retractions.per.year
+    nb.articles.per.year=table(factor(articles$Year, levels=2000:2022))
+    nb.retractions.per.year=table(factor(retractions$Year, levels=2000:2022))
+    nb.pubs.per.year=nb.articles.per.year+nb.retractions.per.year
 
-## proportion of lncRNA-citing articles that get retracted
+    nb.other.articles.per.year=table(factor(articles$Year[which(articles$CitedLnc=="")], levels=2000:2022))
+    nb.other.retractions.per.year=table(factor(retractions$Year[which(retractions$CitedLnc=="")], levels=2000:2022))
+    nb.other.pubs.per.year=nb.other.articles.per.year+nb.other.retractions.per.year
 
-prop.retracted.lncRNA.articles.per.year=nb.lncRNA.retractions.per.year/(nb.lncRNA.retractions.per.year+nb.lncRNA.articles.per.year)
+    nb.lncRNA.articles.per.year=table(factor(articles$Year[which(articles$CitedLnc!="")], levels=2000:2022))
+    nb.lncRNA.retractions.per.year=table(factor(retractions$Year[which(retractions$CitedLnc!="")], levels=2000:2022))
+    nb.lncRNA.pubs.per.year=nb.lncRNA.articles.per.year+nb.lncRNA.retractions.per.year
 
-prop.retracted.other.articles.per.year=nb.other.retractions.per.year/(nb.other.retractions.per.year+nb.other.articles.per.year)
+    ## proportion of publications that cite lncRNA
 
-prop.retracted.pubs.per.year=nb.retractions.per.year/nb.pubs.per.year
+    prop.pubs.lncRNAs.per.year=nb.lncRNA.pubs.per.year/nb.pubs.per.year
+
+    ## proportion of not-retracted articles that cite lncRNAs
+    prop.articles.lncRNAs.per.year=nb.lncRNA.articles.per.year/nb.articles.per.year
+
+    ## proportion of retracted articles that cite lncRNAs
+    prop.retractions.lncRNAs.per.year=nb.lncRNA.retractions.per.year/nb.retractions.per.year
+
+    ## proportion of lncRNA-citing articles that get retracted
+
+    prop.retracted.lncRNA.articles.per.year=nb.lncRNA.retractions.per.year/(nb.lncRNA.retractions.per.year+nb.lncRNA.articles.per.year)
+
+    prop.retracted.other.articles.per.year=nb.other.retractions.per.year/(nb.other.retractions.per.year+nb.other.articles.per.year)
+
+    prop.retracted.pubs.per.year=nb.retractions.per.year/nb.pubs.per.year
 
 }
 ###############################################################################
