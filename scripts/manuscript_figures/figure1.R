@@ -168,8 +168,6 @@ for(i in uniquenb){
 
   rect(this.xstartrect, this.ystartrect, this.xendrect, this.yendrect, xpd=NA, col="white")
 
-  #text(paste("n=",i,sep=""), x=this.xstartrect+1.25, y=this.yendrect+6, xpd=NA)
-
   text(label, x=this.xtext, y=this.ytext, cex=1)
 
 }
