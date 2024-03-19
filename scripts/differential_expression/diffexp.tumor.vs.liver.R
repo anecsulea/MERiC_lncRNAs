@@ -77,7 +77,7 @@ tissue=c(rep("Tumor", nrow(tumor.samples)), rep("Liver", nrow(liver.samples)))
 
 colData=data.frame("Sex"=as.factor(sex), "Tissue"=as.factor(tissue))
 
-dds=DESeqDataSetFromMatrix(read.counts, colData=colData, design = ~Sex+Tissue)
+dds=DESeqDataSetFromTximport(txi.kallisto, colData=colData, design = ~Sex+Tissue)
 
 dds=DESeq(dds, test="Wald",  minReplicatesForReplace=100, parallel=T)
 
