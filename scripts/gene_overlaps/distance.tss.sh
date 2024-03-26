@@ -14,7 +14,7 @@ export release=109
 #########################################################################
 
 if [ ${annot} = "Ensembl" ]; then
-    export pathGTF=${pathEnsembl}/Allranscripts_Ensembl${release}.gtf
+    export pathGTF=${pathEnsembl}/AllTranscripts_Ensembl${release}.gtf
     export suffix=AllTranscripts_Ensembl${release}
 fi
 
