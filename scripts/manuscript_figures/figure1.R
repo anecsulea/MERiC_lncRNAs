@@ -99,8 +99,8 @@ nb.articles.lnc=table(factor(nb.citations.lnc, levels=1:nbmax))
 xpos=1:length(nb.articles.lnc)
 width=0.25
 
-xlim=c(0.75, 36.25)
-ylim=c(0, 400)
+xlim=c(0.75, 52.25)
+ylim=c(0, 300)
 
 par(mar=c(4.75, 3.5, 2.1, 0.5))
 
@@ -108,21 +108,21 @@ plot(1, xlim=xlim, ylim=ylim, type="n", axes=F, xlab="", ylab="")
 rect(xpos-width, 0,  xpos+width, nb.articles.lnc, col="steelblue", border=NA)
 
 
-xax=c(1,seq(from=5, to=35, by=5))
+xax=c(1,seq(from=5, to=50, by=5))
 axis(side=1, at=xax, labels=rep("", length(xax)), mgp=c(3, 0.5, 0), cex.axis=0.95)
 mtext(xax, at=xax, line=0.85,  side=1, cex=0.8)
 mtext("number of publications citing each lncRNA", side=1, cex=0.85, line=2.25)
 
-axis(side=2, mgp=c(3, 0.75, 0), cex.axis=1.05, at=seq(from=0, to=400, by=50))
+axis(side=2, mgp=c(3, 0.75, 0), cex.axis=1.05, at=seq(from=0, to=300, by=50))
 mtext("number of lncRNAs", side=2, cex=0.85, line=2.25)
 
-## legend for lncRNA names, for those lncRNAs cited at least 15 times
+## legend for lncRNA names, for those lncRNAs cited at least 20 times
 
 allnb=nb.citations.lnc
-uniquenb=sort(unique(allnb[which(allnb>=15)]))
+uniquenb=sort(unique(allnb[which(allnb>=20)]))
 
 xtext=uniquenb
-ytext=c(115, 85, 55, 115, 55)
+ytext=c(85, 145, 115, 85, 55, 115, 55)
 
 names(xtext)=as.character(uniquenb)
 names(ytext)=as.character(uniquenb)
@@ -143,6 +143,8 @@ for(i in uniquenb){
 
 ## then rectangles and text
 
+rectmargin=1
+
 for(i in uniquenb){
   this.lnc=sort(geneinfo[names(nb.citations.lnc)[which(nb.citations.lnc==i)],"Name"])
   nb=length(this.lnc)
@@ -155,8 +157,8 @@ for(i in uniquenb){
   this.xtext=xtext[as.character(i)]
   this.ytext=ytext[as.character(i)]
 
-  this.xstartrect=this.xtext-0.2-maxchar/2.35
-  this.xendrect=this.xtext+0.2+maxchar/2.35
+  this.xstartrect=this.xtext-rectmargin-maxchar/2.35
+  this.xendrect=this.xtext+rectmargin+maxchar/2.35
 
   if(this.xstartrect<1.35){
     this.xstartrect=1.35
@@ -172,7 +174,7 @@ for(i in uniquenb){
 
 }
 
-mtext("b", side=3, line=0.5, at=-4.5, font=2, cex=1.1)
+mtext("b", side=3, line=0.5, at=-7.5, font=2, cex=1.1)
 
 ##########################################################################
 
