@@ -15,7 +15,7 @@ register(MulticoreParam(8))
 ########################################################################
 
 pathExpression="../../results/expression_estimation_TCGA/"
-pathDifferentialExpression="../../results/differential_expression/"
+pathDifferentialExpression="../../results/differential_expression_TCGA/"
 pathTCGA="../../data/TCGA/"
 pathRData="../../data_for_publication/RData/"
 
@@ -85,6 +85,6 @@ res.corrected=res.corrected[,c("GeneID", setdiff(colnames(res.corrected), "GeneI
 
 ## write output table
 
-write.table(res.corrected, file=paste(pathDifferentialExpression, "/DifferentialExpressionResults_Tumor_vs_NonTumor_",annot,".txt", sep=""), row.names=F, col.names=T, sep="\t", quote=F)
+write.table(res.corrected, file=paste(pathDifferentialExpression, annot, "/DifferentialExpressionResults_Tumor_vs_NonTumor_",annot,".txt", sep=""), row.names=F, col.names=T, sep="\t", quote=F)
 
 ########################################################################
