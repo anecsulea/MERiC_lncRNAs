@@ -43,11 +43,11 @@ pubs$CitedPc=unlist(lapply(pubs$CitedGenes, function(x) paste(intersect(unlist(s
 
 ## extract all cited pc and lnc
 
-all.cited.pc=unlist(lapply(pubs$CitedPc, function(x) unlist(strsplit(x, split=","))))
+all.cited.pc=unlist(lapply(pubs$CitedPc, function(x) unlist(strsplit(x, split=";"))))
 nb.citations.pc=as.numeric(table(all.cited.pc))
 names(nb.citations.pc)=levels(as.factor(all.cited.pc))
 
-all.cited.lnc=unlist(lapply(pubs$CitedLnc, function(x) unlist(strsplit(x, split=","))))
+all.cited.lnc=unlist(lapply(pubs$CitedLnc, function(x) unlist(strsplit(x, split=";"))))
 nb.citations.lnc=as.numeric(table(all.cited.lnc))
 names(nb.citations.lnc)=levels(as.factor(all.cited.lnc))
 
