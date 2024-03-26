@@ -1,6 +1,5 @@
 ########################################################################
 
-pathExpression="../../results/expression_estimation/"
 
 ########################################################################
 
@@ -14,61 +13,71 @@ library(tximport)
 
 ########################################################################
 
-for(annot in c("AllTranscripts_Ensembl109_noMT_norRNA_nohaplo")){
+for(dataset in c("MERiC", "TCGA")){
 
-    if(file.exists(paste(pathExpression,  annot, "/AllSamples_KallistoRawTPM.txt",sep=""))){
-        print(paste("already done",annot))
-    } else{
+    if(dataset=="MERiC"){
+        pathExpression="../../results/expression_estimation/"
+    }
 
-        samples=system(paste("ls ",pathExpression,  annot, " | grep -v txt",sep=""), intern=T)
+     if(dataset=="MERiC_TCGA"){
+        pathExpression="../../results/expression_estimation_TCGA/"
+     }
 
-        ## tx2gene table
+    for(annot in c("AllTranscripts_Ensembl109_noMT_norRNA_nohaplo")){
 
-        info=read.table(paste(pathExpression, annot, "/",samples[1],"/abundance.tsv", sep=""), h=T, stringsAsFactors=F, sep="\t")
-        tx=info$target_id
-        gene=unlist(lapply(tx, function(x) unlist(strsplit(x, split=":"))[1]))
-        tx2gene=data.frame("tx"=tx, "gene"=gene, stringsAsFactors=F)
+        if(file.exists(paste(pathExpression,  annot, "/AllSamples_KallistoRawTPM.txt",sep=""))){
+            print(paste("already done",annot))
+        } else{
 
-        ###############################################################################
+            samples=system(paste("ls ",pathExpression,  annot, " | grep -v txt",sep=""), intern=T)
 
-        files=paste(pathExpression, annot, "/", samples, "/abundance.h5", sep="")
-        names(files)=samples
+            ## tx2gene table
 
-        txi.kallisto <- tximport(files, type = "kallisto", tx2gene = tx2gene)
+            info=read.table(paste(pathExpression, annot, "/",samples[1],"/abundance.tsv", sep=""), h=T, stringsAsFactors=F, sep="\t")
+            tx=info$target_id
+            gene=unlist(lapply(tx, function(x) unlist(strsplit(x, split=":"))[1]))
+            tx2gene=data.frame("tx"=tx, "gene"=gene, stringsAsFactors=F)
 
-        ########################################################################
+            ###############################################################################
 
-        read.counts=as.data.frame(txi.kallisto$counts)
+            files=paste(pathExpression, annot, "/", samples, "/abundance.h5", sep="")
+            names(files)=samples
 
-        tpm=as.data.frame(txi.kallisto$abundance)
+            txi.kallisto <- tximport(files, type = "kallisto", tx2gene = tx2gene)
 
-        efflen=as.data.frame(txi.kallisto$length)
+            ########################################################################
 
-        ########################################################################
+            read.counts=as.data.frame(txi.kallisto$counts)
 
-        ## normalization
+            tpm=as.data.frame(txi.kallisto$abundance)
 
-        norm.data=normalization(tpm)
-        tpm.norm=norm.data[["expdata.norm"]]
-        rownames(tpm.norm)=rownames(tpm)
+            efflen=as.data.frame(txi.kallisto$length)
 
-        hk.genes=norm.data[["hk.genes"]]
+            ########################################################################
 
-        ########################################################################
+            ## normalization
 
-        ## write output
+            norm.data=normalization(tpm)
+            tpm.norm=norm.data[["expdata.norm"]]
+            rownames(tpm.norm)=rownames(tpm)
 
-        writeLines(hk.genes, con=paste(pathExpression, annot,  "/HousekeepingGenes.txt",sep=""))
+            hk.genes=norm.data[["hk.genes"]]
 
-        write.table(efflen, file=paste(pathExpression, annot,  "/AllSamples_KallistoEffectiveLength.txt",sep=""), row.names=T, col.names=T, quote=F, sep="\t")
+            ########################################################################
 
-        write.table(read.counts, file=paste(pathExpression, annot, "/AllSamples_KallistoEstimatedCounts.txt",sep=""), row.names=T, col.names=T, quote=F, sep="\t")
+            ## write output
 
-        write.table(tpm, file=paste(pathExpression, annot, "/AllSamples_KallistoRawTPM.txt",sep=""), row.names=T, col.names=T, quote=F, sep="\t")
+            writeLines(hk.genes, con=paste(pathExpression, annot,  "/HousekeepingGenes.txt",sep=""))
 
-        write.table(tpm.norm, file=paste(pathExpression, annot,  "/AllSamples_KallistoNormalizedTPM.txt",sep=""), row.names=T, col.names=T, quote=F, sep="\t")
+            write.table(efflen, file=paste(pathExpression, annot,  "/AllSamples_KallistoEffectiveLength.txt",sep=""), row.names=T, col.names=T, quote=F, sep="\t")
 
-        ########################################################################
+            write.table(read.counts, file=paste(pathExpression, annot, "/AllSamples_KallistoEstimatedCounts.txt",sep=""), row.names=T, col.names=T, quote=F, sep="\t")
+
+            write.table(tpm, file=paste(pathExpression, annot, "/AllSamples_KallistoRawTPM.txt",sep=""), row.names=T, col.names=T, quote=F, sep="\t")
+
+            write.table(tpm.norm, file=paste(pathExpression, annot,  "/AllSamples_KallistoNormalizedTPM.txt",sep=""), row.names=T, col.names=T, quote=F, sep="\t")
+
+         }
     }
 }
 ########################################################################
