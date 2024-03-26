@@ -19,7 +19,7 @@ for(dataset in c("MERiC", "TCGA")){
         pathExpression="../../results/expression_estimation/"
     }
 
-     if(dataset=="MERiC_TCGA"){
+     if(dataset=="TCGA"){
         pathExpression="../../results/expression_estimation_TCGA/"
      }
 
