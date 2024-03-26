@@ -2,7 +2,7 @@
 
 objects=ls()
 
-files=c("data.gene.info.R", "data.PubMed.analysis.R",  "data.diffexp.R",  "data.expression.levels.R", "data.sequence.conservation.R")
+files=c("data.gene.info.R", "data.PubMed.analysis.R",  "data.diffexp.R",  "data.expression.levels.R", "data.sequence.conservation.R", "data.gene.overlaps.R")
 
 ############################################################
 
