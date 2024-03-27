@@ -4,7 +4,7 @@ if(!("pathFigures" %in% objects())){
     pathRData="../../data_for_publication/RData/"
     pathFigures="../../data_for_publication/main_figures/"
 
-    maxFDR=0.05
+    maxFDR=0.01
 
     library(vioplot)
 
@@ -24,6 +24,9 @@ if(load){
     ## differential expression
     load(paste(pathRData, "data.diffexp.RData",sep=""))
 
+    ## gene overlaps
+    load(paste(pathRData, "data.gene.overlaps.RData",sep=""))
+
     load=FALSE
 }
 
@@ -35,9 +38,9 @@ if(prepare){
 
     ## significant genes for volcano plot
 
-    diffexp.tissues.significant=diffexp.tissues[which(diffexp.tissues$padj<0.05),]
-    diffexp.grades.significant=diffexp.grades[which(diffexp.grades$padj<0.05),]
-    diffexp.tnt.significant=diffexp.tnt[which(diffexp.tnt$padj<0.05),]
+    diffexp.tissues.significant=diffexp.tissues[which(diffexp.tissues$padj < maxFDR),]
+    diffexp.grades.significant=diffexp.grades[which(diffexp.grades$padj < maxFDR),]
+    diffexp.tnt.significant=diffexp.tnt[which(diffexp.tnt$padj < maxFDR),]
 
     ## proportion up-regulated and down-regulated
 
@@ -49,13 +52,23 @@ if(prepare){
     for(type in c("tissues", "grades", "tnt")){
         this.diffexp=get(paste("diffexp",type,sep="."))
 
-        prop.up.cited.lnc=length(which(this.diffexp[all.cited.lnc, "padj"]<maxFDR & this.diffexp[all.cited.lnc, "log2FoldChange"]>0))/length(all.cited.lnc)
-        prop.up.other.lnc=length(which(this.diffexp[other.lnc, "padj"]<maxFDR & this.diffexp[other.lnc, "log2FoldChange"]>0))/length(other.lnc)
-        prop.up.pc=length(which(this.diffexp[pc, "padj"]<maxFDR & this.diffexp[pc, "log2FoldChange"]>0))/length(pc)
+        significant.up.cited.lnc=all.cited.lnc[which(this.diffexp[all.cited.lnc, "padj"]<maxFDR & this.diffexp[all.cited.lnc, "log2FoldChange"]>0)]
+        significant.down.cited.lnc=all.cited.lnc[which(this.diffexp[all.cited.lnc, "padj"]<maxFDR & this.diffexp[all.cited.lnc, "log2FoldChange"]<0)]
 
-        prop.down.cited.lnc=length(which(this.diffexp[all.cited.lnc, "padj"]<maxFDR & this.diffexp[all.cited.lnc, "log2FoldChange"]<0))/length(all.cited.lnc)
-        prop.down.other.lnc=length(which(this.diffexp[other.lnc, "padj"]<maxFDR & this.diffexp[other.lnc, "log2FoldChange"]<0))/length(other.lnc)
-        prop.down.pc=length(which(this.diffexp[pc, "padj"]<maxFDR & this.diffexp[pc, "log2FoldChange"]<0))/length(pc)
+        significant.up.other.lnc=other.lnc[which(this.diffexp[other.lnc, "padj"]<maxFDR & this.diffexp[other.lnc, "log2FoldChange"]>0)]
+        significant.down.other.lnc=other.lnc[which(this.diffexp[other.lnc, "padj"]<maxFDR & this.diffexp[other.lnc, "log2FoldChange"]<0)]
+
+        significant.up.pc=pc[which(this.diffexp[pc, "padj"]<maxFDR & this.diffexp[pc, "log2FoldChange"]>0)]
+        significant.down.pc=pc[which(this.diffexp[pc, "padj"]<maxFDR & this.diffexp[pc, "log2FoldChange"]<0)]
+
+        prop.up.cited.lnc=length(significant.up.cited.lnc)/length(all.cited.lnc)
+        prop.up.other.lnc=length(significant.up.other.lnc)/length(other.lnc)
+        prop.up.pc=length(significant.up.pc)/length(pc)
+
+        prop.down.cited.lnc=length(significant.down.cited.lnc)/length(all.cited.lnc)
+        prop.down.other.lnc=length(significant.down.other.lnc)/length(other.lnc)
+        prop.down.pc=length(significant.down.pc)/length(pc)
+
 
         prop[[type]]=c(prop.up.pc, prop.up.cited.lnc, prop.up.other.lnc, prop.down.pc, prop.down.cited.lnc, prop.down.other.lnc)
 
@@ -74,6 +87,115 @@ if(prepare){
 }
 
 ##########################################################################
+
+pdf(paste(pathFigures, "Figure3.pdf", sep=""), width=6.85, height=6.1)
+
+##########################################################################
+
+m=matrix(rep(NA, 3*15), nrow=3)
+
+m[1,]=c(rep(1,5), rep(4,5), rep(7,5))
+m[2,]=c(rep(2,5), rep(5,5), rep(8,5))
+m[3,]=c(rep(3,5), rep(6,5), rep(9,5))
+
+layout(m)
+
+##########################################################################
+
+legends=c("tumor vs. liver", "high grades vs. low grades", "tumor vs. adjacent tissue")
+names(legends)=c("tissues", "grades", "tnt")
+
+for(type in c("tissues", "grades", "tnt")){
+    this.diffexp.signif=get(paste("diffexp", type, "significant",sep="."))
+
+    lfc.cited.lnc=this.diffexp.signif[intersect(rownames(this.diffexp.signif), all.cited.lnc),"log2FoldChange"]
+    lfc.other.lnc=this.diffexp.signif[intersect(rownames(this.diffexp.signif),other.lnc),"log2FoldChange"]
+    lfc.pc=this.diffexp.signif[intersect(rownames(this.diffexp.signif), pc),"log2FoldChange"]
+
+    d.pc=density(lfc.pc)
+    d.cited.lnc=density(lfc.cited.lnc)
+    d.other.lnc=density(lfc.other.lnc)
+
+    #####################################
+
+    ## protein-coding
+    par(mar=c(1.1, 2.5, 2.1, 1.1))
+    maxval=max(abs(lfc.pc))
+    xlim=c(-maxval, maxval)
+    plot(d.pc, col="indianred", lwd=1.15, type="l", xlab="", ylab="", axes=F, main="", xlim=xlim)
+    abline(v=0, lty=3, col="gray40")
+    axis(side=2, mgp=c(3,0.75,0))
+    axis(side=1, mgp=c(3,0.5,0))
+
+    if(type=="tnt"){
+        mtext("protein-coding", side=4, cex=0.75, line=-0.2)
+    }
+
+    mtext(legends[type], side=3, line=0.25, cex=0.75)
+
+    ## text for prop up and down
+    mtext("down-regulated", side=3, at=-maxval*1.05, line=-1.5, cex=0.7, adj=0)
+    mtext(paste(round(100*prop[[type]][4], digits=1), "%"), side=3, line=-2.5, cex=0.7, at=-maxval*1.05, adj=0)
+
+    mtext("up-regulated", side=3, at=maxval*1.05, line=-1.5, cex=0.7, adj=1)
+    mtext(paste(round(100*prop[[type]][1], digits=1), "%"), side=3, line=-2.5, cex=0.7, at=maxval*1.05, adj=1)
+
+    #####################################
+
+    par(mar=c(1.6, 2.5, 1.6, 1.1))
+    maxval=max(abs(lfc.cited.lnc))
+    xlim=c(-maxval, maxval)
+    plot(d.cited.lnc, col="steelblue", lwd=1.15, type="l", xlab="", ylab="", axes=F, main="", xlim=xlim)
+    abline(v=0, lty=3, col="gray40")
+    axis(side=2, mgp=c(3,0.75,0))
+    axis(side=1, mgp=c(3,0.5,0))
+
+    if(type=="tnt"){
+        mtext("HCC-associated lncRNAs", side=4, cex=0.75, line=-0.2)
+    }
+
+
+    ## text for prop up and down
+    mtext("down-regulated", side=3, at=-maxval*1.05, line=-1.5, cex=0.7, adj=0)
+    mtext(paste(round(100*prop[[type]][5], digits=1), "%"), side=3, line=-2.5, cex=0.7, at=-maxval*1.05, adj=0)
+
+    mtext("up-regulated", side=3, at=maxval*1.05, line=-1.5, cex=0.7, adj=1)
+    mtext(paste(round(100*prop[[type]][2], digits=1), "%"), side=3, line=-2.5, cex=0.7, at=maxval*1.05, adj=1)
+
+   #####################################
+
+    par(mar=c(2.1, 2.5, 1.1, 1.1))
+    maxval=max(abs(lfc.other.lnc))
+    xlim=c(-maxval, maxval)
+    plot(d.other.lnc, col="lightblue", lwd=1.15, type="l", xlab="", ylab="", axes=F, main="", xlim=xlim)
+    abline(v=0, lty=3, col="gray40")
+    axis(side=2, mgp=c(3,0.75,0))
+    axis(side=1, mgp=c(3,0.5,0))
+
+
+    if(type=="tnt"){
+        mtext("other lncRNAs", side=4, cex=0.75, line=-0.2)
+    }
+
+    ## text for prop up and down
+    mtext("down-regulated", side=3, at=-maxval*1.05, line=-1.5, cex=0.7, adj=0)
+    mtext(paste(round(100*prop[[type]][6], digits=1), "%"), side=3, line=-2.5, cex=0.7, at=-maxval*1.05, adj=0)
+
+    mtext("up-regulated", side=3, at=maxval*1.05, line=-1.5, cex=0.7, adj=1)
+    mtext(paste(round(100*prop[[type]][3], digits=1), "%"), side=3, line=-2.5, cex=0.7, at=maxval*1.05, adj=1)
+
+}
+
+
+##########################################################################
+
+dev.off()
+
+##########################################################################
+##########################################################################
+
+
+stop()
 
 pdf(paste(pathFigures, "Figure3.pdf", sep=""), width=5, height=7.5)
 
