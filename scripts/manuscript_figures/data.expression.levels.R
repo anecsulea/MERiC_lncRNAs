@@ -16,7 +16,7 @@ save(tpm, file=paste(pathRData, "data.expression.levels.MERiC.RData",sep=""))
 
 ##########################################################################
 
-tpm=read.table(paste(pathExpressionTCGA, annot, "/AllSamples_KallistoRawTPM.txt",sep=""), h=T, stringsAsFactors=F, sep="\t")
+tpm=read.table(paste(pathExpressionTCGA, annot, "/AllSamples_KallistoRawTPM.txt",sep=""), h=T, stringsAsFactors=F, sep="\t", check.names=F)
 
 ##########################################################################
 
