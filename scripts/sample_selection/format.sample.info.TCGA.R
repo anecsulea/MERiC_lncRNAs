@@ -16,7 +16,7 @@ sampleinfo$sample_type[which(sampleinfo$sample_type=="Primary Tumor")]="Tumor"
 
 ########################################################################
 
-save(list=c("tumor.samples", "liver.samples"), file=paste(pathRData, "data.sample.info.TCGA.RData",sep=""))
+save(list=c("sampleinfo"), file=paste(pathRData, "data.sample.info.TCGA.RData",sep=""))
 
 ###########################################################################
 
