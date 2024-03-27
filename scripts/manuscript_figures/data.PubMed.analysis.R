@@ -51,6 +51,11 @@ all.cited.lnc=unlist(lapply(pubs$CitedLnc, function(x) unlist(strsplit(x, split=
 nb.citations.lnc=as.numeric(table(all.cited.lnc))
 names(nb.citations.lnc)=levels(as.factor(all.cited.lnc))
 
+## don't count them twice
+
+all.cited.pc=unique(all.cited.pc)
+all.cited.lnc=unique(all.cited.lnc)
+
 ##########################################################################
 
 save(list=c("pubs", "all.cited.pc", "all.cited.lnc", "nb.citations.pc", "nb.citations.lnc"), file=paste(pathRData, "data.PubMed.analysis.RData",sep=""))
