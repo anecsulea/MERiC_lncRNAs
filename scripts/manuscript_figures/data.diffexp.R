@@ -17,6 +17,7 @@ diffexp.tissues=read.table(paste(pathDifferentialExpression, annot, "/Differenti
 ## TCGA
 
 diffexp.tnt=read.table(paste(pathDifferentialExpressionTCGA, annot, "/DifferentialExpression_Tumor_vs_NonTumor.txt", sep=""), h=T, stringsAsFactors=F, sep="\t")
+rownames(diffexp.tnt)=diffexp.tnt$GeneID
 
 ##########################################################################
 
