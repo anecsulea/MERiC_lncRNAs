@@ -141,10 +141,16 @@ for(type in c("tissues", "grades", "tnt")){
     segments(b[2], 100*this.conf.up[["cited.lnc"]][1], b[2], 100*this.conf.up[["cited.lnc"]][2], lwd=1.5)
     segments(b[3], 100*this.conf.up[["other.lnc"]][1], b[3], 100*this.conf.up[["other.lnc"]][2], lwd=1.5)
 
+    mtext("up-regulated", at=b[2], side=1, line=0.25, cex=0.7)
+
+    abline(v=mean(b[3:4]), lty=3, col="gray40")
+
     this.conf.down=conf.down[[type]]
     segments(b[4], 100*this.conf.down[["pc"]][1], b[4], 100*this.conf.down[["pc"]][2], lwd=1.5)
     segments(b[5], 100*this.conf.down[["cited.lnc"]][1], b[5], 100*this.conf.down[["cited.lnc"]][2], lwd=1.5)
     segments(b[6], 100*this.conf.down[["other.lnc"]][1], b[6], 100*this.conf.down[["other.lnc"]][2], lwd=1.5)
+
+    mtext("down-regulated", at=b[5], side=1, line=0.25, cex=0.7)
 
     mtext("% of genes", side=2, line=2.5, cex=0.75)
 
