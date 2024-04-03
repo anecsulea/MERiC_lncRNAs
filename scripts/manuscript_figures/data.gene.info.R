@@ -12,6 +12,8 @@ geneinfo=read.table(paste(pathEnsembl, "GeneInfo_Ensembl",release, ".txt", sep="
 colnames(geneinfo)=c("ID", "Name", "Chr", "Start", "End", "Strand", "Biotype")
 rownames(geneinfo)=geneinfo$ID
 
+geneinfo=geneinfo[which(geneinfo$Chr%in%c(as.character(1:22), "X", "Y")),]
+
 ###############################################################################
 
 lnc=geneinfo$ID[which(geneinfo$Biotype=="lncRNA")]
