@@ -51,54 +51,52 @@ if(prepare){
     lnc.cited.once=names(nb.citations.lnc)[which(nb.citations.lnc==1)]
     lnc.cited.more=names(nb.citations.lnc)[which(nb.citations.lnc>1)]
     lnc.cited.all=names(nb.citations.lnc)
-
-    ## other lnc, not cited
     other.lnc=setdiff(lnc, lnc.cited.all)
+
+    pc.cited.once=names(nb.citations.pc)[which(nb.citations.pc==1)]
+    pc.cited.more=names(nb.citations.pc)[which(nb.citations.pc>1)]
+    pc.cited.all=names(nb.citations.pc)
+    other.pc=setdiff(pc, pc.cited.all)
 
     ## extract overlaps with pc genes
     overlaps.pc=gene.overlaps[which(gene.overlaps$NeighborID%in%pc),]
 
     ## sense and antisense overlaps
+    sense.overlaps=gene.overlaps[which(gene.overlaps$Type=="sense"),]
+    antisense.overlaps=gene.overlaps[which(gene.overlaps$Type=="antisense"),]
+
     sense.overlaps.pc=overlaps.pc[which(overlaps.pc$Type=="sense"),]
     antisense.overlaps.pc=overlaps.pc[which(overlaps.pc$Type=="antisense"),]
 
-    prop.antisense.overlaps.cited.once.lnc=length(which(lnc.cited.once%in%antisense.overlaps.pc$GeneID))/length(lnc.cited.once)
-    prop.antisense.overlaps.cited.more.lnc=length(which(lnc.cited.more%in%antisense.overlaps.pc$GeneID))/length(lnc.cited.more)
-    prop.antisense.overlaps.other.lnc=length(which(other.lnc%in%antisense.overlaps.pc$GeneID))/length(other.lnc)
-    prop.antisense.overlaps.pc=length(which(pc%in%antisense.overlaps.pc$GeneID))/length(pc)
-
-    antisense.conf.cited.once.lnc=prop.test(length(which(lnc.cited.once%in%antisense.overlaps.pc$GeneID)), length(lnc.cited.once))$conf
-    antisense.conf.cited.more.lnc=prop.test(length(which(lnc.cited.more%in%antisense.overlaps.pc$GeneID)), length(lnc.cited.more))$conf
-    antisense.conf.other.lnc=prop.test(length(which(other.lnc%in%antisense.overlaps.pc$GeneID)), length(other.lnc))$conf
-    antisense.conf.pc=prop.test(length(which(pc%in%antisense.overlaps.pc$GeneID)), length(pc))$conf
-
     ## bidirectional promoters with pc genes
 
-    biprom1pc=biprom1kb[which(biprom1kb$GenesCloseTSS%in%pc),]
-    biprom5pc=biprom1kb[which(biprom5kb$GenesCloseTSS%in%pc),]
+    biprom1kb=biprom1kb[which(!is.na(biprom1kb$GenesCloseTSS)),]
+    biprom5kb=biprom5kb[which(!is.na(biprom5kb$GenesCloseTSS)),]
 
-    prop.biprom.cited.once.lnc=length(which(lnc.cited.once%in%biprom1pc$GeneID))/length(lnc.cited.once)
-    prop.biprom.cited.more.lnc=length(which(lnc.cited.more%in%biprom1pc$GeneID))/length(lnc.cited.more)
-    prop.biprom.other.lnc=length(which(other.lnc%in%biprom1pc$GeneID))/length(other.lnc)
-    prop.biprom.pc=length(which(pc%in%biprom1pc$GeneID))/length(pc)
+    biprom1kb.pc=biprom1kb[which(biprom1kb$GenesCloseTSS%in%pc),]
+    biprom5kb.pc=biprom1kb[which(biprom5kb$GenesCloseTSS%in%pc),]
 
-    biprom.conf.cited.once.lnc=prop.test(length(which(lnc.cited.once%in%biprom1pc$GeneID)), length(lnc.cited.once))$conf
-    biprom.conf.cited.more.lnc=prop.test(length(which(lnc.cited.more%in%biprom1pc$GeneID)), length(lnc.cited.more))$conf
-    biprom.conf.other.lnc=prop.test(length(which(other.lnc%in%biprom1pc$GeneID)), length(other.lnc))$conf
-    biprom.conf.pc=prop.test(length(which(pc%in%biprom1pc$GeneID)), length(pc))$conf
+   ########################################################
+
+    prop.antisense.overlaps=list()
+    antisense.conf=list()
+    prop.biprom=list()
+    biprom.conf=list()
+
+    for(genetype in c("lnc.cited.once", "lnc.cited.more", "other.lnc", "pc.cited.once", "pc.cited.more", "other.pc")){
+        genes=get(genetype)
+
+        prop.antisense.overlaps[[genetype]]=length(which(genes%in%antisense.overlaps$GeneID))/length(genes)
+        antisense.conf[[genetype]]=prop.test(length(which(genes%in%antisense.overlaps$GeneID)), length(genes))$conf
+        prop.biprom[[genetype]]=length(which(genes%in%biprom1kb$GeneID))/length(genes)
+        biprom.conf[[genetype]]=prop.test(length(which(genes%in%biprom1kb$GeneID)), length(genes))$conf
+    }
 
     ## average expression level across various samples
     meantpm.liver.meric=apply(tpm.meric[ ,liver.samples.meric$biopsyID],1, mean)
     meantpm.tumor.meric=apply(tpm.meric[ ,tumor.samples.meric$tumor_biopsyID],1, mean)
     meantpm.tumor.tcga=apply(tpm.tcga[, tumor.samples.tcga$id], 1, mean)
     meantpm.nontumor.tcga=apply(tpm.tcga[, nontumor.samples.tcga$id], 1, mean)
-
-    ## phastcons score
-
-    phast.cited.once.lnc=phastcons[lnc.cited.once, "Score"]
-    phast.cited.more.lnc=phastcons[lnc.cited.more, "Score"]
-    phast.other.lnc=phastcons[other.lnc, "Score"]
-    phast.pc=phastcons[pc, "Score"]
 
     prepare=FALSE
 }
@@ -129,75 +127,97 @@ layout(m)
 
 ##########################################################################
 
-## expression levels in meric
+genetypes=c("pc.cited.more", "pc.cited.once", "other.pc", "lnc.cited.more", "lnc.cited.once",  "other.lnc")
 
-par(mar=c(2.5, 3.75, 2.5, 1.75))
+xpos.genetypes=c(1, 3.5, 6, 2,  4.5, 7)
+names(xpos.genetypes)=genetypes
 
-xlim=c(0.5,9.5)
-ylim=c(0,20)
-
-plot(1, type="n", xlab="", ylab="", axes=F, xlim=xlim, ylim=ylim)
-
-## expression in tumor samples
-
-vioplot(log2(meantpm.tumor.meric[pc]+1), h=1, add=T, axes=F, at=1, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="indianred")
-vioplot(log2(meantpm.tumor.meric[lnc.cited.more]+1), h=1, add=T, axes=F, at=2, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="dodgerblue4")
-vioplot(log2(meantpm.tumor.meric[lnc.cited.once]+1), h=1, add=T, axes=F, at=3, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="steelblue")
-vioplot(log2(meantpm.tumor.meric[other.lnc]+1), h=1, add=T, axes=F, at=4, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="lightblue")
-
-mtext("tumor", side=3, line=-2, at=2.5, cex=0.8)
-
-vioplot(log2(meantpm.liver.meric[pc]+1), h=1, add=T, axes=F, at=6, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="indianred")
-vioplot(log2(meantpm.liver.meric[lnc.cited.more]+1), h=1, add=T, axes=F, at=7, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="dodgerblue4")
-vioplot(log2(meantpm.liver.meric[lnc.cited.once]+1), h=1, add=T, axes=F, at=8, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="steelblue")
-vioplot(log2(meantpm.liver.meric[other.lnc]+1), h=1, add=T, axes=F, at=9, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="lightblue")
-
-mtext("liver", side=3, line=-2, at=7.5, cex=0.8)
-
-axis(side=2, mgp=c(3,0.65,0))
-mtext("mean expression level", side=2, line=2.5, cex=0.8)
-
-axis(side=1, at=c(1:4, 6:9), labels=rep("", 8), mgp=c(3,0.5,0))
-
-mtext("MERiC dataset", side=3, line=0.5, cex=0.8)
-
-mtext("a", font=2, line=0.95, at=-1.3)
+col.genetypes=rep(c("indianred", "steelblue"), each=3)
+names(col.genetypes)=genetypes
 
 ##########################################################################
 
-## expression levels in TCGA
+## expression levels in meric, tumor samples
 
 par(mar=c(2.5, 3.75, 2.5, 1.75))
 
-xlim=c(0.5,9.5)
+xlim=c(0.5,8)
 ylim=c(0,20)
 
 plot(1, type="n", xlab="", ylab="", axes=F, xlim=xlim, ylim=ylim)
 
 ## expression in tumor samples
 
-vioplot(log2(meantpm.tumor.tcga[pc]+1), h=1, add=T, axes=F, at=1, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="indianred")
-vioplot(log2(meantpm.tumor.tcga[lnc.cited.more]+1), h=1, add=T, axes=F, at=2, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="dodgerblue4")
-vioplot(log2(meantpm.tumor.tcga[lnc.cited.once]+1), h=1, add=T, axes=F, at=3, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="steelblue")
-vioplot(log2(meantpm.tumor.tcga[other.lnc]+1), h=1, add=T, axes=F, at=4, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="lightblue")
+for(type in genetypes){
+    this.genes=get(type)
+    this.xpos=xpos.genetypes[type]
+    this.col=col.genetypes[type]
 
-mtext("tumor", side=3, line=-2, at=2.5, cex=0.8)
+    vioplot(log2(meantpm.tumor.meric[this.genes]+1), h=1, add=T, axes=F, at=this.xpos, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col=this.col)
+}
 
-vioplot(log2(meantpm.nontumor.tcga[pc]+1), h=1, add=T, axes=F, at=6, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="indianred")
-vioplot(log2(meantpm.nontumor.tcga[lnc.cited.more]+1), h=1, add=T, axes=F, at=7, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="dodgerblue4")
-vioplot(log2(meantpm.nontumor.tcga[lnc.cited.once]+1), h=1, add=T, axes=F, at=8, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="steelblue")
-vioplot(log2(meantpm.nontumor.tcga[other.lnc]+1), h=1, add=T, axes=F, at=9, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="lightblue")
+abline(v=mean(xpos.genetypes[c("lnc.cited.more", "pc.cited.once")]), lty=3)
+abline(v=mean(xpos.genetypes[c("lnc.cited.once", "other.pc")]), lty=3)
 
-mtext("adjacent tissue", side=3, line=-2, at=7.5, cex=0.8)
+mtext("tumor", side=3, line=-1, at=mean(xpos.genetypes), cex=0.75)
 
 axis(side=2, mgp=c(3,0.65,0))
-mtext("mean expression level", side=2, line=2.5, cex=0.8)
+mtext("mean expression level (log2 TPM)", side=2, line=2.5, cex=0.75)
 
-axis(side=1, at=c(1:4, 6:9), labels=rep("", 8), mgp=c(3,0.5,0))
+mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=0.5, cex=0.75)
+mtext(">1 articles", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=1.5, cex=0.75)
 
-mtext("TCGA dataset", side=3, line=0.5, cex=0.8)
+mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=0.5, cex=0.75)
+mtext("1 article", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=1.5, cex=0.75)
 
-mtext("b", font=2, line=0.95, at=-1.3)
+mtext("not cited", side=1, at=mean(xpos.genetypes[c("other.pc", "other.lnc")]),line=1, cex=0.75)
+
+axis(side=1, at=xpos.genetypes, labels=rep("", length(xpos.genetypes)), mgp=c(3,0.5,0))
+
+legend("topright", legend=c("protein-coding", "lncRNAs"), fill=c("indianred", "steelblue"), xpd=NA, inset=c(-0.05, -0.05), cex=1.1, bty="n")
+
+mtext("a", font=2, line=0.95, at=-1)
+
+##########################################################################
+
+## expression levels in meric, liver samples
+
+par(mar=c(2.5, 4.75, 2.5, 0.75))
+
+xlim=c(0.5,8)
+ylim=c(0,20)
+
+plot(1, type="n", xlab="", ylab="", axes=F, xlim=xlim, ylim=ylim)
+
+## expression in tumor samples
+
+for(type in genetypes){
+    this.genes=get(type)
+    this.xpos=xpos.genetypes[type]
+    this.col=col.genetypes[type]
+
+    vioplot(log2(meantpm.liver.meric[this.genes]+1), h=1, add=T, axes=F, at=this.xpos, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col=this.col)
+}
+
+abline(v=mean(xpos.genetypes[c("lnc.cited.more", "pc.cited.once")]), lty=3)
+abline(v=mean(xpos.genetypes[c("lnc.cited.once", "other.pc")]), lty=3)
+
+mtext("liver", side=3, line=-1, at=mean(xpos.genetypes), cex=0.75)
+
+axis(side=2, mgp=c(3,0.65,0))
+mtext("mean expression level (log2 TPM)", side=2, line=2.5, cex=0.75)
+
+mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=0.5, cex=0.75)
+mtext(">1 articles", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=1.5, cex=0.75)
+
+mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=0.5, cex=0.75)
+mtext("1 article", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=1.5, cex=0.75)
+
+mtext("not cited", side=1, at=mean(xpos.genetypes[c("other.pc", "other.lnc")]),line=1, cex=0.75)
+
+axis(side=1, at=xpos.genetypes, labels=rep("", length(xpos.genetypes)), mgp=c(3,0.5,0))
+
+mtext("b", font=2, line=0.95, at=-1)
 
 ##########################################################################
 
@@ -205,17 +225,35 @@ mtext("b", font=2, line=0.95, at=-1.3)
 
 par(mar=c(2.5, 3.75, 3, 1.75))
 
-values=100*c(prop.antisense.overlaps.pc, prop.antisense.overlaps.cited.more.lnc, prop.antisense.overlaps.cited.once.lnc, prop.antisense.overlaps.other.lnc)
+plot(1, type="n", xlab="", ylab="", axes=F, ylim=c(0,100), xlim=c(0.5,8))
 
-b=barplot(values, space=1, col=c("indianred", "dodgerblue4", "steelblue", "lightblue"), ylim=c(0,60), axes=F, xlim=c(0.5,8))
-segments(b[1], 100*antisense.conf.pc[1], b[1], 100*antisense.conf.pc[2], lwd=1.5)
-segments(b[2], 100*antisense.conf.cited.more.lnc[1], b[2], 100*antisense.conf.cited.more.lnc[2], lwd=1.5)
-segments(b[3], 100*antisense.conf.cited.once.lnc[1], b[3], 100*antisense.conf.cited.once.lnc[2], lwd=1.5)
-segments(b[4], 100*antisense.conf.other.lnc[1], b[4], 100*antisense.conf.other.lnc[2], lwd=1.5)
+width=diff(xpos.genetypes)[1]/8
+
+for(type in genetypes){
+    this.prop=100*prop.antisense.overlaps[[type]]
+    this.xpos=xpos.genetypes[type]
+    this.col=col.genetypes[type]
+
+    this.conf=antisense.conf[[type]]
+
+    rect(this.xpos-width, 0, this.xpos+width, this.prop, col=this.col)
+    segments(this.xpos, 100*this.conf[1], this.xpos, 100*this.conf[2], lwd=1.5)
+}
+
+mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=0.75, cex=0.75)
+mtext(">1", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=1.75, cex=0.75)
+
+mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=0.75, cex=0.75)
+mtext("1", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=1.75, cex=0.75)
+
+mtext("not cited", side=1, at=mean(xpos.genetypes[c("other.pc", "other.lnc")]),line=1.25, cex=0.75)
 
 axis(side=2, mgp=c(3,0.65,0))
 
-axis(side=1, at=b, labels=rep("",4))
+axis(side=1, at=xpos.genetypes, labels=rep("",length(xpos.genetypes)))
+
+abline(v=mean(xpos.genetypes[c("lnc.cited.more", "pc.cited.once")]), lty=3)
+abline(v=mean(xpos.genetypes[c("lnc.cited.once", "other.pc")]), lty=3)
 
 mtext("% with antisense overlap", side=2, line=2.5, cex=0.8)
 
@@ -223,66 +261,82 @@ mtext("c", font=2, line=0.95, at=-2)
 
 ##########################################################################
 
-## antisense overlap with pc genes
+## bidirectional promoters
 
 par(mar=c(2.5, 3.25, 3, 2.25))
 
-values=100*c(prop.biprom.pc, prop.biprom.cited.more.lnc,prop.biprom.cited.once.lnc, prop.biprom.other.lnc)
+plot(1, type="n", xlab="", ylab="", axes=F, ylim=c(0,100), xlim=c(0.5,8))
 
-b=barplot(values, space=1, col=c("indianred", "dodgerblue4", "steelblue", "lightblue"), ylim=c(0,40), axes=F, xlim=c(0.5, 8))
-segments(b[1], 100*biprom.conf.pc[1], b[1], 100*biprom.conf.pc[2], lwd=1.5)
-segments(b[2], 100*biprom.conf.cited.more.lnc[1], b[2], 100*biprom.conf.cited.more.lnc[2], lwd=1.5)
-segments(b[3], 100*biprom.conf.cited.once.lnc[1], b[3], 100*biprom.conf.cited.once.lnc[2], lwd=1.5)
-segments(b[4], 100*biprom.conf.other.lnc[1], b[4], 100*biprom.conf.other.lnc[2], lwd=1.5)
+width=diff(xpos.genetypes)[1]/8
+
+for(type in genetypes){
+    this.prop=100*prop.biprom[[type]]
+    this.xpos=xpos.genetypes[type]
+    this.col=col.genetypes[type]
+
+    this.conf=biprom.conf[[type]]
+
+    rect(this.xpos-width, 0, this.xpos+width, this.prop, col=this.col)
+    segments(this.xpos, 100*this.conf[1], this.xpos, 100*this.conf[2], lwd=1.5)
+}
+
+mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=0.75, cex=0.75)
+mtext(">1", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=1.75, cex=0.75)
+
+mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=0.75, cex=0.75)
+mtext("1", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=1.75, cex=0.75)
+
+mtext("not cited", side=1, at=mean(xpos.genetypes[c("other.pc", "other.lnc")]),line=1.25, cex=0.75)
 
 axis(side=2, mgp=c(3,0.65,0))
 
-axis(side=1, at=b, labels=rep("",4))
+axis(side=1, at=xpos.genetypes, labels=rep("",length(xpos.genetypes)))
+
+abline(v=mean(xpos.genetypes[c("lnc.cited.more", "pc.cited.once")]), lty=3)
+abline(v=mean(xpos.genetypes[c("lnc.cited.once", "other.pc")]), lty=3)
 
 mtext("% with bidirectional promoters", side=2, line=2.5, cex=0.8)
 
 mtext("d", font=2, line=0.95, at=-2)
 
+
 ##########################################################################
 
 ## sequence conservation scores
 
-par(mar=c(2.5, 3.25, 3, 2.25))
+par(mar=c(2.5, 3.25, 3, 0.75))
 
-xlim=c(0.5,4.5)
+xlim=c(0.5,8)
 ylim=c(0,1)
 
 plot(1, type="n", xlab="", ylab="", axes=F, xlim=xlim, ylim=ylim)
 
+for(type in genetypes){
+    this.genes=get(type)
+    this.phast=phastcons[this.genes, "Score"]
+    this.col=col.genetypes[type]
+    this.xpos=xpos.genetypes[type]
 
-vioplot(phast.pc, h=0.02, add=T, axes=F, at=1, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="indianred")
-vioplot(phast.cited.more.lnc, h=0.02, add=T, axes=F, at=2, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="dodgerblue4")
-vioplot(phast.cited.once.lnc, h=0.02, add=T, axes=F, at=3, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="steelblue")
-vioplot(phast.other.lnc, h=0.02, add=T, axes=F, at=4, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="lightblue")
+    vioplot(this.phast, h=0.02, add=T, axes=F, at=this.xpos, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col=this.col)
+}
 
 axis(side=2, mgp=c(3,0.65,0))
 
-axis(side=1, at=1:4, labels=rep("",4))
 
+axis(side=1, at=xpos.genetypes, labels=rep("",length(xpos.genetypes)))
 mtext("sequence conservation", side=2, line=2.5, cex=0.8)
 
-mtext("e", font=2, line=0.95, at=-0.6)
-
-##########################################################################
-
-## legend plot
 
 
-par(mar=c(0, 0, 0, 10.75))
+mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=0.75, cex=0.75)
+mtext(">1", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=1.75, cex=0.75)
 
+mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=0.75, cex=0.75)
+mtext("1", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=1.75, cex=0.75)
 
-plot(1, type="n", xlab="", ylab="", axes=F)
+mtext("not cited", side=1, at=mean(xpos.genetypes[c("other.pc", "other.lnc")]),line=1.25, cex=0.75)
 
-legend("topleft", legend=c("protein-coding"), fill=c("indianred"), xpd=NA, inset=c(0.01, -0.3), cex=1.2, bty="n")
-legend("topleft", legend=c("cited lncRNAs (n>1)"), fill=c("dodgerblue4"), xpd=NA, inset=c(0.25, -0.3), cex=1.2, bty="n")
-legend("topleft", legend=c("cited lncRNAs (n=1)"), fill=c("steelblue"), xpd=NA, inset=c(0.55, -0.3), cex=1.2, bty="n")
-legend("topleft", legend=c("other lncRNAs"), fill=c("lightblue"), xpd=NA, inset=c(0.85, -0.3), cex=1.2, bty="n")
-
+mtext("e", font=2, line=0.95, at=-1.35)
 
 ##########################################################################
 
