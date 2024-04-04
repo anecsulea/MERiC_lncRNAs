@@ -46,8 +46,6 @@ if(prepare){
     pc.cited.all=names(nb.citations.pc)
     other.pc=setdiff(pc, pc.cited.all)
 
-    pca.list=list()
-
     samples=c(liver.samples$biopsyID, tumor.samples$tumor_biopsyID)
     eg=c(rep("liver", nrow(liver.samples)), paste("ES",tumor.samples$edmondson,sep=""))
 
@@ -56,6 +54,8 @@ if(prepare){
     samples.eg2=tumor.samples$tumor_biopsyID[which(tumor.samples$edmondson==2)]
     samples.eg3=tumor.samples$tumor_biopsyID[which(tumor.samples$edmondson==3)]
     samples.eg4=tumor.samples$tumor_biopsyID[which(tumor.samples$edmondson==4)]
+
+    pca.list=list()
 
     for(genetype in c("lnc.cited.once", "lnc.cited.more", "other.lnc", "pc.cited.once", "pc.cited.more", "other.pc")){
 

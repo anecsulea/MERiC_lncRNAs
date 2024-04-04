@@ -22,7 +22,7 @@ if(load){
     ## differential expression
     load(paste(pathRData, "data.diffexp.RData",sep=""))
 
-     ## differential expression
+     ## sample info
     load(paste(pathRData, "data.sample.info.RData",sep=""))
 
     ## TPM
