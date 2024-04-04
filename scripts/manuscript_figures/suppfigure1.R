@@ -4,8 +4,6 @@ if(!("pathFigures"%in%objects())){
     pathRData="../../data_for_publication/RData/"
     pathFigures="../../data_for_publication/main_figures/"
 
-    library(vioplot)
-
     load=TRUE
     prepare=TRUE
 }
@@ -56,17 +54,15 @@ if(prepare){
 
 ##########################################################################
 
-pdf(paste(pathFigures, "SupplementaryFigure1.pdf", sep=""), width=3.85, height=3)
+pdf(paste(pathFigures, "SupplementaryFigure1.pdf", sep=""), width=5.85, height=2.75)
 
 ##########################################################################
 
 ## layout
 
-m=matrix(rep(NA, 1*10), nrow=10)
+m=matrix(rep(NA, 1*20), nrow=1)
 
-for(i in 1:10){
-    m[i,]=c(rep(1, 10), rep(2,10))
-}
+m[1,]=c(rep(1, 10), rep(2,10))
 
 
 layout(m)
@@ -105,7 +101,7 @@ for(type in genetypes){
 abline(v=mean(xpos.genetypes[c("lnc.cited.more", "pc.cited.once")]), lty=3)
 abline(v=mean(xpos.genetypes[c("lnc.cited.once", "other.pc")]), lty=3)
 
-mtext("tumor", side=3, line=-1, at=mean(xpos.genetypes), cex=0.75)
+mtext("tumor", side=3, line=0.25, at=mean(xpos.genetypes), cex=0.75)
 
 axis(side=2, mgp=c(3,0.65,0))
 mtext("mean expression level (log2 TPM)", side=2, line=2.5, cex=0.75)
@@ -120,9 +116,9 @@ mtext("not cited", side=1, at=mean(xpos.genetypes[c("other.pc", "other.lnc")]),l
 
 axis(side=1, at=xpos.genetypes, labels=rep("", length(xpos.genetypes)), mgp=c(3,0.5,0))
 
-legend("topright", legend=c("protein-coding", "lncRNAs"), fill=c("indianred", "steelblue"), xpd=NA, inset=c(-0.05, -0.05), cex=1.1, bty="n")
+legend("topright", legend=c("protein-coding", "lncRNAs"), fill=c("indianred", "steelblue"), xpd=NA, inset=c(-0.12, -0.05), cex=1.1, bty="n")
 
-mtext("a", font=2, line=0.95, at=-1)
+mtext("a", font=2, line=0.95, at=-1.35)
 
 ##########################################################################
 
@@ -148,7 +144,7 @@ for(type in genetypes){
 abline(v=mean(xpos.genetypes[c("lnc.cited.more", "pc.cited.once")]), lty=3)
 abline(v=mean(xpos.genetypes[c("lnc.cited.once", "other.pc")]), lty=3)
 
-mtext("adjacent tissue", side=3, line=-1, at=mean(xpos.genetypes), cex=0.75)
+mtext("adjacent tissue", side=3, line=0.25, at=mean(xpos.genetypes), cex=0.75)
 
 axis(side=2, mgp=c(3,0.65,0))
 mtext("mean expression level (log2 TPM)", side=2, line=2.5, cex=0.75)
@@ -163,7 +159,7 @@ mtext("not cited", side=1, at=mean(xpos.genetypes[c("other.pc", "other.lnc")]),l
 
 axis(side=1, at=xpos.genetypes, labels=rep("", length(xpos.genetypes)), mgp=c(3,0.5,0))
 
-mtext("b", font=2, line=0.95, at=-1)
+mtext("b", font=2, line=0.95, at=-1.35)
 
 ##########################################################################
 
