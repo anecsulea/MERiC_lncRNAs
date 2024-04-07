@@ -53,9 +53,9 @@ save(list=c("tumor.samples","nontumor.samples"), file=paste(pathRData, "data.sam
 
 ###########################################################################
 
-write.table(tumor.samples, paste(pathDocs, "MERiC_Samples_Tumor.txt",sep=""), row.names=F, col.names=T, sep="\t", quote="\"")
+write.table(tumor.samples, paste(pathDocs, "MERiC_Samples_Tumor.txt",sep=""), row.names=F, col.names=T, sep="\t", quote=F)
 
-write.table(nontumor.samples, paste(pathDocs, "MERiC_Samples_AdjacentTissue.txt",sep=""), row.names=F, col.names=T, sep="\t", quote="\"")
+write.table(nontumor.samples, paste(pathDocs, "MERiC_Samples_AdjacentTissue.txt",sep=""), row.names=F, col.names=T, sep="\t", quote=F)
 
 ###########################################################################
 
