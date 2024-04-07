@@ -70,7 +70,7 @@ txi.kallisto$length=txi.kallisto$length[,selected.samples]
 ########################################################################
 
 dds=DESeqDataSetFromTximport(txi.kallisto, colData=colData, design = ~tissue+patient)
-dds=DESeq(dds, test="Wald",  minReplicatesForReplace=100, parallel=T)
+dds=DESeq(dds, test="Wald",  minReplicatesForReplace=10, parallel=T)
 
 ## get DE genes
 

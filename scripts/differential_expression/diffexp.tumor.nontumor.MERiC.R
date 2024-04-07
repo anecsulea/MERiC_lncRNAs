@@ -72,7 +72,7 @@ colData=data.frame("tissue"=tissue.factor, "patient"=patient.factor)
 
 dds=DESeqDataSetFromTximport(txi.kallisto, colData=colData, design = ~tissue+patient)
 
-dds=DESeq(dds, test="Wald",  minReplicatesForReplace=100, parallel=T)
+dds=DESeq(dds, test="Wald",  minReplicatesForReplace=10, parallel=T)
 
 ########################################################################
 

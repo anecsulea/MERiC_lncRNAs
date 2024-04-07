@@ -74,7 +74,7 @@ colData=data.frame("Sex"=as.factor(tumor.samples$sex), "EdmondsonGrade"=eg)
 
 dds=DESeqDataSetFromTximport(txi.kallisto, colData=colData, design = ~Sex+EdmondsonGrade)
 
-dds=DESeq(dds, test="Wald",  minReplicatesForReplace=50, parallel=T)
+dds=DESeq(dds, test="Wald",  minReplicatesForReplace=10, parallel=T)
 
 ########################################################################
 
