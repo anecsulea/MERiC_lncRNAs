@@ -45,7 +45,7 @@ if(length(dupli)>0){
 
 ## get tx2gene info
 
-samples=tumor.samples$tumor_biopsyID
+samples=c(tumor.samples$tumor_biopsyID, notumor.samples$biopsyID)
 
 sinfo=read.table(paste(pathExpression, annot, "/",samples[1],"/abundance.tsv",sep=""), h=T, stringsAsFactors=F)
 geneid=unlist(lapply(sinfo$target_id, function(x) unlist(strsplit(x, split=":"))[1]))
@@ -65,22 +65,20 @@ txi.kallisto <- tximport(files, type = "kallisto", tx2gene = tx2gene)
 
 ## Edmondson grade
 
-eg=rep(NA, nrow(tumor.samples))
+tissue.factor=as.factor(c(rep("Tumor", nrow(tumor.samples)), rep("NonTumor", nrow(nontumor.samples))))
+patient.factor=as.factor(tumor.samples$Patient_ID, nontumor.samples$Patient <- ID)
 
-eg[which(tumor.samples$edmondson%in%c(1,2))]="12"
-eg[which(tumor.samples$edmondson%in%c(3,4))]="34"
+colData=data.frame("tissue"=tissue.factor, "patient"=patient.factor)
 
-colData=data.frame("Sex"=as.factor(tumor.samples$sex), "EdmondsonGrade"=eg)
+dds=DESeqDataSetFromTximport(txi.kallisto, colData=colData, design = ~tissue+patient)
 
-dds=DESeqDataSetFromTximport(txi.kallisto, colData=colData, design = ~Sex+EdmondsonGrade)
-
-dds=DESeq(dds, test="Wald",  minReplicatesForReplace=50, parallel=T)
+dds=DESeq(dds, test="Wald",  minReplicatesForReplace=100, parallel=T)
 
 ########################################################################
 
-results=results(dds, contrast=c("EdmondsonGrade", "34", "12"))
+results=results(dds, name="tissue_Tumor_vs_NonTumor")
 
-results=lfcShrink(dds, coef="EdmondsonGrade_34_vs_12", res=results, type="apeglm")
+results=lfcShrink(dds, coef="tissue_Tumor_vs_NonTumor", res=results, type="apeglm")
 
 results=as.data.frame(results)
 
@@ -88,6 +86,6 @@ results=results[order(results$padj),]
 
 ########################################################################
 
-write.table(results, file=paste(pathDifferentialExpression, annot, "/DifferentialExpression_EdmondsonGrade_34_vs_12.txt",sep=""), row.names=T, col.names=T, sep="\t", quote=F)
+write.table(results, file=paste(pathDifferentialExpression, annot, "/DifferentialExpression_Tumor_vs_NonTumor.txt",sep=""), row.names=T, col.names=T, sep="\t", quote=F)
 
 ########################################################################

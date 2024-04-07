@@ -85,6 +85,6 @@ res.corrected=res.corrected[,c("GeneID", setdiff(colnames(res.corrected), "GeneI
 
 ## write output table
 
-write.table(res.corrected, file=paste(pathDifferentialExpression, annot, "/DifferentialExpression_Tumor_vs_NonTumor.txt", sep=""), row.names=F, col.names=T, sep="\t", quote=F)
+write.table(res.corrected, file=paste(pathDifferentialExpression, annot, "/DifferentialExpression_Tumor_vs_NonTumor.txt", sep=""), row.names=T, col.names=T, sep="\t", quote=F)
 
 ########################################################################
