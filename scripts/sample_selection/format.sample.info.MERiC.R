@@ -6,6 +6,10 @@ pathRData="../../data_for_publication/RData/"
 ###########################################################################
 
 sample.annot=read.table(paste(pathDocs, "SampleAnnotation_CN_AN.txt",sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
+rownames(sample.annot)=sample.annot$biopsy_id
+sample.annot$Patient_ID=as.character(sample.annot$Patient_ID)
+
+sample.annot=sample.annot[which(sample.annot$comment.AN==""),]
 
 ###########################################################################
 
@@ -16,19 +20,42 @@ selected.columns=c("tumor_biopsyID" , "Patient_ID", "sex", "age_at_biopsy", "bcl
 
 tumor.samples=tumor.samples[,selected.columns]
 
-###########################################################################
+tumor.samples$Patient_ID=as.character(tumor.samples$Patient_ID)
 
-liver.samples=read.table(paste(pathDocs, "LiverSamples_Ng2022.txt", sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
-liver.samples=liver.samples[which(liver.samples$biopsyID!="POOL"),]
-liver.samples=liver.samples[which(liver.samples$RNAseq=="Y"),]
-
-selected.columns=c("biopsyID", "sex", "age_at_biopsy", "normal_liver_quality")
-
-liver.samples=liver.samples[,selected.columns]
+patient.sex=tumor.samples$sex
+names(patient.sex)=tumor.samples$Patient_ID
 
 ###########################################################################
 
-save(list=c("tumor.samples", "liver.samples"), file=paste(pathRData, "data.sample.info.RData",sep=""))
+tumor.samples=tumor.samples[which(tumor.samples$tumor_biopsyID%in%sample.annot$biopsy_id),]
+
+patients=sample.annot[tumor.samples$tumor_biopsyID, "Patient_ID"]
+
+annot.nontumor.samples=sample.annot[which(sample.annot$Patient_ID%in%patients & sample.annot$tissue=="Non-Tumor-Liver"),]
+
+###########################################################################
+
+tumor.samples.unique=tumor.samples[which(!duplicated(tumor.samples$Patient_ID)),]
+
+patient.synonyms=tumor.samples.unique$Patient_ID
+
+names(patient.synonyms)=sample.annot[tumor.samples.unique$tumor_biopsyID, "Patient_ID"]
+
+nontumor.samples=annot.nontumor.samples[,c("biopsy_id", "Patient_ID", "bio_age", "diagnosis1", "diagnosis2", "diagnosis3")]
+colnames(nontumor.samples)=c("biopsyID", "Patient_ID", "age_at_biopsy",  "diagnosis1", "diagnosis2", "diagnosis3")
+nontumor.samples$Patient_ID=patient.synonyms[nontumor.samples$Patient_ID]
+
+nontumor.samples$sex=patient.sex[nontumor.samples$Patient_ID]
+
+###########################################################################
+
+save(list=c("tumor.samples","nontumor.samples"), file=paste(pathRData, "data.sample.info.MERiC.RData",sep=""))
+
+###########################################################################
+
+write.table(tumor.samples, paste(pathDocs, "MERiC_Samples_Tumor.txt",sep=""), row.names=F, col.names=T, sep="\t", quote="\"")
+
+write.table(nontumor.samples, paste(pathDocs, "MERiC_Samples_AdjacentTissue.txt",sep=""), row.names=F, col.names=T, sep="\t", quote="\"")
 
 ###########################################################################
 
