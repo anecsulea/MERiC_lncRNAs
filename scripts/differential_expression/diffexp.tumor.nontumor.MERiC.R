@@ -45,7 +45,7 @@ if(length(dupli)>0){
 
 ## get tx2gene info
 
-samples=c(tumor.samples$tumor_biopsyID, notumor.samples$biopsyID)
+samples=c(tumor.samples$tumor_biopsyID, nontumor.samples$biopsyID)
 
 sinfo=read.table(paste(pathExpression, annot, "/",samples[1],"/abundance.tsv",sep=""), h=T, stringsAsFactors=F)
 geneid=unlist(lapply(sinfo$target_id, function(x) unlist(strsplit(x, split=":"))[1]))
@@ -66,7 +66,7 @@ txi.kallisto <- tximport(files, type = "kallisto", tx2gene = tx2gene)
 ## Edmondson grade
 
 tissue.factor=as.factor(c(rep("Tumor", nrow(tumor.samples)), rep("NonTumor", nrow(nontumor.samples))))
-patient.factor=as.factor(tumor.samples$Patient_ID, nontumor.samples$Patient <- ID)
+patient.factor=as.factor(c(tumor.samples$Patient_ID, nontumor.samples$Patient_ID))
 
 colData=data.frame("tissue"=tissue.factor, "patient"=patient.factor)
 
