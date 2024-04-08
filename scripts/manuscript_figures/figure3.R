@@ -48,7 +48,7 @@ if(prepare){
     nb.significant=list()
     nb.neighbor.significant=list() ## in what fraction of cases the gene has a close bidirectional promoter and the neighbor is signfiicant
 
-    for(type in c("tissues", "grades", "tnt")){
+    for(type in c("tnt.meric", "grades")){
         this.diffexp=get(paste("diffexp",type,sep="."))
 
         nb.significant[[type]]=list()
@@ -73,22 +73,21 @@ if(prepare){
 
 ##########################################################################
 
-pdf(paste(pathFigures, "Figure3.pdf", sep=""), width=5.85, height=7.1)
+pdf(paste(pathFigures, "Figure3.pdf", sep=""), width=5.85, height=4.5)
 
 ##########################################################################
 
-m=matrix(rep(NA, 3*10), nrow=3)
+m=matrix(rep(NA, 2*10), nrow=2)
 
 m[1,]=c(rep(1,5), rep(2,5))
 m[2,]=c(rep(3,5), rep(4,5))
-m[3,]=c(rep(5,5), rep(6,5))
 
 layout(m)
 
 ##########################################################################
 
-legends=c("tumor vs. liver", "high grades vs. low grades", "tumor vs. adjacent tissue")
-names(legends)=c("tissues", "grades", "tnt")
+legends=c("tumor vs. adjacent tissue", "high grades vs. low grades")
+names(legends)=c("tnt.meric", "grades")
 
 genetypes=c("pc.cited.more", "pc.cited.once", "other.pc", "lnc.cited.more", "lnc.cited.once",  "other.lnc")
 
@@ -106,7 +105,7 @@ labels=letters[1:6]
 
 plotindex=1
 
-for(type in c("tissues", "grades", "tnt")){
+for(type in c("tnt.meric", "grades")){
 
     ## proportion of significant genes
 
