@@ -4,8 +4,6 @@ if(!("pathFigures"%in%objects())){
     pathRData="../../data_for_publication/RData/"
     pathFigures="../../data_for_publication/main_figures/"
 
-    library(ade4)
-
     load=TRUE
     prepare=TRUE
 }
@@ -19,15 +17,16 @@ if(load){
     ## gene info
     load(paste(pathRData, "data.gene.info.RData", sep=""))
 
-    ## sampleinfo
-    load(paste(pathRData, "data.sample.info.RData",sep=""))
 
-    ## TPM
-    load(paste(pathRData, "data.expression.levels.MERiC.RData",sep=""))
-    tpm.meric=tpm
+    load(paste(pathRData, "data.expression.levels.TCGA.RData",sep=""))
+    tpm.tcga=tpm
 
-    col.Edmondson=c("gray40", "gold", "darkorange", "indianred", "red")
-    names(col.Edmondson)=c("liver", "ES1", "ES2", "ES3", "ES4")
+    ## sample info
+
+    load(paste(pathRData, "data.sample.info.TCGA.RData",sep=""))
+    sampleinfo.tcga=sampleinfo
+    tumor.samples.tcga=sampleinfo.tcga[which(sampleinfo$sample_type=="Tumor"),]
+    nontumor.samples.tcga=sampleinfo.tcga[which(sampleinfo$sample_type=="Non-Tumor"),]
 
     load=FALSE
 }
@@ -35,7 +34,6 @@ if(load){
 ##########################################################################
 
 if(prepare){
-
     lnc.cited.once=names(nb.citations.lnc)[which(nb.citations.lnc==1)]
     lnc.cited.more=names(nb.citations.lnc)[which(nb.citations.lnc>1)]
     lnc.cited.all=names(nb.citations.lnc)
@@ -46,57 +44,26 @@ if(prepare){
     pc.cited.all=names(nb.citations.pc)
     other.pc=setdiff(pc, pc.cited.all)
 
-    samples=c(liver.samples$biopsyID, tumor.samples$tumor_biopsyID)
-    eg=c(rep("liver", nrow(liver.samples)), paste("ES",tumor.samples$edmondson,sep=""))
+    ## average expression level across various samples
 
-    samples.liver=liver.samples$biopsyID
-    samples.eg1=tumor.samples$tumor_biopsyID[which(tumor.samples$edmondson==1)]
-    samples.eg2=tumor.samples$tumor_biopsyID[which(tumor.samples$edmondson==2)]
-    samples.eg3=tumor.samples$tumor_biopsyID[which(tumor.samples$edmondson==3)]
-    samples.eg4=tumor.samples$tumor_biopsyID[which(tumor.samples$edmondson==4)]
-
-    pca.list=list()
-
-    for(genetype in c("lnc.cited.once", "lnc.cited.more", "other.lnc", "pc.cited.once", "pc.cited.more", "other.pc")){
-
-        genes=get(genetype)
-        genes=intersect(genes, rownames(tpm.meric))
-        this.tpm=log2(tpm.meric[genes,]+1)
-
-        this.pca=dudi.pca(t(this.tpm), center=T, scale=F, scannf=FALSE, nf=5)
-
-        pca.list[[genetype]]=this.pca
-    }
+    meantpm.tumor.tcga=apply(tpm.tcga[, tumor.samples.tcga$id], 1, mean)
+    meantpm.nontumor.tcga=apply(tpm.tcga[, nontumor.samples.tcga$id], 1, mean)
 
     prepare=FALSE
 }
 
 ##########################################################################
 
-pdf(paste(pathFigures, "SupplementaryFigure2.pdf", sep=""), width=6.85, height=6.75)
+pdf(paste(pathFigures, "SupplementaryFigure1.pdf", sep=""), width=5.85, height=2.75)
 
 ##########################################################################
 
 ## layout
 
-m=matrix(rep(NA, 19*14), nrow=19)
+m=matrix(rep(NA, 1*20), nrow=1)
 
-n1=4
-n2=3
+m[1,]=c(rep(1, 10), rep(2,10))
 
-for(i in 1:6){
-    m[i,]=c(rep(1,n1), rep(2,n2), rep(7,n1), rep(8,n2))
-}
-
-for(i in 7:12){
-    m[i,]=c(rep(3,n1), rep(4,n2), rep(9,n1), rep(10,n2))
-}
-
-for(i in 13:18){
-    m[i,]=c(rep(5,n1), rep(6,n2), rep(11,n1), rep(12,n2))
-}
-
-m[19, ]= rep(13,14)
 
 layout(m)
 
@@ -104,72 +71,95 @@ layout(m)
 
 genetypes=c("pc.cited.more", "pc.cited.once", "other.pc", "lnc.cited.more", "lnc.cited.once",  "other.lnc")
 
-titles=c("protein-coding, cited >1", "protein-coding, cited 1", "protein-coding, not cited", "lncRNAs, cited >1", "lncRNAs, cited 1", "lncRNAs, not cited")
-names(titles)=genetypes
+xpos.genetypes=c(1, 3.5, 6, 2,  4.5, 7)
+names(xpos.genetypes)=genetypes
 
-labels=letters[1:6]
-names(labels)=c("pc.cited.more", "lnc.cited.more", "pc.cited.once", "lnc.cited.once", "other.pc",   "other.lnc")
+col.genetypes=rep(c("indianred", "steelblue"), each=3)
+names(col.genetypes)=genetypes
 
 ##########################################################################
 
-for(genetype in genetypes){
-    this.pca=pca.list[[genetype]]
+## expression levels in TCGA, tumor samples
 
-    ## first factorial map
+par(mar=c(2.5, 3.75, 2.5, 1.75))
 
-    min.coord.liver=min(as.numeric(this.pca$li[liver.samples$biopsyID,1]))
-    mean.coord.tumor=mean(as.numeric(this.pca$li[tumor.samples$tumor_biopsyID,1]))
+xlim=c(0.5,8)
+ylim=c(0,20)
 
-    sign=1
+plot(1, type="n", xlab="", ylab="", axes=F, xlim=xlim, ylim=ylim)
 
-    if(min.coord.liver>mean.coord.tumor){
-        sign=-1
-    }
+## expression in tumor samples
 
-    par(mar=c(4,3.1,2.1,1.1))
-    plot(sign*this.pca$li[samples,1], this.pca$li[samples,2], pch=20, col=col.Edmondson[eg], xlab="", ylab="", axes=F)
+for(type in genetypes){
+    this.genes=get(type)
+    this.xpos=xpos.genetypes[type]
+    this.col=col.genetypes[type]
 
-    axis(side=1, mgp=c(3,0.5,0))
-    axis(side=2, mgp=c(3,0.65,0))
-
-    box()
-
-    explained=round(100*this.pca$eig/sum(this.pca$eig), digits=1)
-
-    mtext(paste("PC1 (",explained[1],"% variance)", sep=""), side=1, line=2.15, cex=0.75)
-    mtext(paste("PC2 (",explained[2],"% variance)", sep=""), side=2, line=2, cex=0.75)
-
-    xlim=range(sign*this.pca$li[samples,1])
-    mtext(titles[genetype], side=3, at=xlim[2]+diff(xlim)/10, cex=0.85, line=0.5)
-
-    mtext(labels[genetype], side=3, line=1, cex=0.9, font=2, at=xlim[1]-diff(xlim)/3.5)
-
-
-    ## coordinates on first axis
-    par(mar=c(4,3.1,2.1,1.1))
-
-    boxplot(sign*this.pca$li[samples.liver,1], sign*this.pca$li[samples.eg1,1], sign*this.pca$li[samples.eg2,1], sign*this.pca$li[samples.eg3,1], sign*this.pca$li[samples.eg4,1], col=col.Edmondson, pch=20, axes=F)
-
-    axis(side=1, mgp=c(3,0.5,0), at=1:5, labels=rep("",5))
-    axis(side=2, mgp=c(3,0.65,0))
-    box()
-
-    mtext("coordinate on PC1", side=2, line=2, cex=0.75)
-    mtext("sample type", side=1, line=2.15, cex=0.75)
-
+    vioplot(log2(meantpm.tumor.tcga[this.genes]+1), h=1, add=T, axes=F, at=this.xpos, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col=this.col)
 }
 
+abline(v=mean(xpos.genetypes[c("lnc.cited.more", "pc.cited.once")]), lty=3)
+abline(v=mean(xpos.genetypes[c("lnc.cited.once", "other.pc")]), lty=3)
+
+mtext("tumor", side=3, line=0.25, at=mean(xpos.genetypes), cex=0.75)
+
+axis(side=2, mgp=c(3,0.65,0))
+mtext("mean expression level (log2 TPM)", side=2, line=2.5, cex=0.75)
+
+mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=0.5, cex=0.75)
+mtext(">1 articles", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=1.5, cex=0.75)
+
+mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=0.5, cex=0.75)
+mtext("1 article", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=1.5, cex=0.75)
+
+mtext("not cited", side=1, at=mean(xpos.genetypes[c("other.pc", "other.lnc")]),line=1, cex=0.75)
+
+axis(side=1, at=xpos.genetypes, labels=rep("", length(xpos.genetypes)), mgp=c(3,0.5,0))
+
+legend("topright", legend=c("protein-coding", "lncRNAs"), fill=c("indianred", "steelblue"), xpd=NA, inset=c(-0.12, -0.05), cex=1.1, bty="n")
+
+mtext("a", font=2, line=0.95, at=-1.35)
+
 ##########################################################################
 
-## legend plot
-par(mar=c(0.5,3.1,0.1,1.1))
-plot(1, type="n", xlab="", ylab="", axes=F)
+## expression levels in TCGA, adjacent tissue samples
 
-legend("topleft", legend="liver", fill=col.Edmondson[1], bty="n", cex=1.25)
-legend("topleft", legend="tumor grade 1", fill=col.Edmondson[2], bty="n", cex=1.25, inset=c(0.1,0))
-legend("topleft", legend="tumor grade 2", fill=col.Edmondson[3], bty="n", cex=1.25, inset=c(0.3,0))
-legend("topleft", legend="tumor grade 3", fill=col.Edmondson[4], bty="n", cex=1.25, inset=c(0.5,0))
-legend("topleft", legend="tumor grade 4", fill=col.Edmondson[5], bty="n", cex=1.25, inset=c(0.7,0))
+par(mar=c(2.5, 4.75, 2.5, 0.75))
+
+xlim=c(0.5,8)
+ylim=c(0,20)
+
+plot(1, type="n", xlab="", ylab="", axes=F, xlim=xlim, ylim=ylim)
+
+## expression in tumor samples
+
+for(type in genetypes){
+    this.genes=get(type)
+    this.xpos=xpos.genetypes[type]
+    this.col=col.genetypes[type]
+
+    vioplot(log2(meantpm.nontumor.tcga[this.genes]+1), h=1, add=T, axes=F, at=this.xpos, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col=this.col)
+}
+
+abline(v=mean(xpos.genetypes[c("lnc.cited.more", "pc.cited.once")]), lty=3)
+abline(v=mean(xpos.genetypes[c("lnc.cited.once", "other.pc")]), lty=3)
+
+mtext("adjacent tissue", side=3, line=0.25, at=mean(xpos.genetypes), cex=0.75)
+
+axis(side=2, mgp=c(3,0.65,0))
+mtext("mean expression level (log2 TPM)", side=2, line=2.5, cex=0.75)
+
+mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=0.5, cex=0.75)
+mtext(">1 articles", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=1.5, cex=0.75)
+
+mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=0.5, cex=0.75)
+mtext("1 article", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=1.5, cex=0.75)
+
+mtext("not cited", side=1, at=mean(xpos.genetypes[c("other.pc", "other.lnc")]),line=1, cex=0.75)
+
+axis(side=1, at=xpos.genetypes, labels=rep("", length(xpos.genetypes)), mgp=c(3,0.5,0))
+
+mtext("b", font=2, line=0.95, at=-1.35)
 
 ##########################################################################
 

@@ -20,14 +20,14 @@ if(load){
     load(paste(pathRData, "data.gene.info.RData", sep=""))
 
     ## sampleinfo
-    load(paste(pathRData, "data.sample.info.RData",sep=""))
+    load(paste(pathRData, "data.sample.info.TCGA.RData",sep=""))
 
     ## TPM
-    load(paste(pathRData, "data.expression.levels.MERiC.RData",sep=""))
-    tpm.meric=tpm
+    load(paste(pathRData, "data.expression.levels.TCGA.RData",sep=""))
+    tpm.tcga=tpm
 
-    col.Edmondson=c("gray40", "gold", "darkorange", "indianred", "red")
-    names(col.Edmondson)=c("liver", "ES1", "ES2", "ES3", "ES4")
+    col.tissues=c("gray40", "darkorange")
+    names(col.tissues)=c("adjacent tissue", "tumor")
 
     load=FALSE
 }
@@ -46,34 +46,33 @@ if(prepare){
     pc.cited.all=names(nb.citations.pc)
     other.pc=setdiff(pc, pc.cited.all)
 
-    samples=c(liver.samples$biopsyID, tumor.samples$tumor_biopsyID)
-    eg=c(rep("liver", nrow(liver.samples)), paste("ES",tumor.samples$edmondson,sep=""))
 
-    samples.liver=liver.samples$biopsyID
-    samples.eg1=tumor.samples$tumor_biopsyID[which(tumor.samples$edmondson==1)]
-    samples.eg2=tumor.samples$tumor_biopsyID[which(tumor.samples$edmondson==2)]
-    samples.eg3=tumor.samples$tumor_biopsyID[which(tumor.samples$edmondson==3)]
-    samples.eg4=tumor.samples$tumor_biopsyID[which(tumor.samples$edmondson==4)]
+    samples=c(sampleinfo$id[which(sampleinfo$sample_type=="Non-Tumor")], sampleinfo$id[which(sampleinfo$sample_type=="Tumor")])
+    tissues=c(rep("adjacent tissue", length(which(sampleinfo$sample_type=="Non-Tumor"))), rep("tumor", length(which(sampleinfo$sample_type=="Tumor"))))
+
+    samples.adjacent=sampleinfo$id[which(sampleinfo$sample_type=="Non-Tumor")]
+    samples.tumor=sampleinfo$id[which(sampleinfo$sample_type=="Tumor")]
 
     pca.list=list()
 
     for(genetype in c("lnc.cited.once", "lnc.cited.more", "other.lnc", "pc.cited.once", "pc.cited.more", "other.pc")){
 
         genes=get(genetype)
-        genes=intersect(genes, rownames(tpm.meric))
-        this.tpm=log2(tpm.meric[genes,]+1)
+        genes=intersect(genes, rownames(tpm.tcga))
+        this.tpm=log2(tpm.tcga[genes,]+1)
 
         this.pca=dudi.pca(t(this.tpm), center=T, scale=F, scannf=FALSE, nf=5)
 
         pca.list[[genetype]]=this.pca
     }
 
+
     prepare=FALSE
 }
 
 ##########################################################################
 
-pdf(paste(pathFigures, "SupplementaryFigure2.pdf", sep=""), width=6.85, height=6.75)
+pdf(paste(pathFigures, "SupplementaryFigure3.pdf", sep=""), width=6.85, height=6.75)
 
 ##########################################################################
 
@@ -117,17 +116,17 @@ for(genetype in genetypes){
 
     ## first factorial map
 
-    min.coord.liver=min(as.numeric(this.pca$li[liver.samples$biopsyID,1]))
-    mean.coord.tumor=mean(as.numeric(this.pca$li[tumor.samples$tumor_biopsyID,1]))
+    min.coord.adjacent=min(as.numeric(this.pca$li[samples.adjacent,1]))
+    mean.coord.tumor=mean(as.numeric(this.pca$li[samples.tumor,1]))
 
     sign=1
 
-    if(min.coord.liver>mean.coord.tumor){
+    if(min.coord.adjacent>mean.coord.tumor){
         sign=-1
     }
 
     par(mar=c(4,3.1,2.1,1.1))
-    plot(sign*this.pca$li[samples,1], this.pca$li[samples,2], pch=20, col=col.Edmondson[eg], xlab="", ylab="", axes=F)
+    plot(sign*this.pca$li[samples,1], this.pca$li[samples,2], pch=20, col=col.tissues[tissues], xlab="", ylab="", axes=F)
 
     axis(side=1, mgp=c(3,0.5,0))
     axis(side=2, mgp=c(3,0.65,0))
@@ -148,7 +147,7 @@ for(genetype in genetypes){
     ## coordinates on first axis
     par(mar=c(4,3.1,2.1,1.1))
 
-    boxplot(sign*this.pca$li[samples.liver,1], sign*this.pca$li[samples.eg1,1], sign*this.pca$li[samples.eg2,1], sign*this.pca$li[samples.eg3,1], sign*this.pca$li[samples.eg4,1], col=col.Edmondson, pch=20, axes=F)
+    boxplot(sign*this.pca$li[samples.adjacent,1], sign*this.pca$li[samples.tumor,1], col=col.tissues, pch=20, axes=F)
 
     axis(side=1, mgp=c(3,0.5,0), at=1:5, labels=rep("",5))
     axis(side=2, mgp=c(3,0.65,0))
@@ -165,11 +164,9 @@ for(genetype in genetypes){
 par(mar=c(0.5,3.1,0.1,1.1))
 plot(1, type="n", xlab="", ylab="", axes=F)
 
-legend("topleft", legend="liver", fill=col.Edmondson[1], bty="n", cex=1.25)
-legend("topleft", legend="tumor grade 1", fill=col.Edmondson[2], bty="n", cex=1.25, inset=c(0.1,0))
-legend("topleft", legend="tumor grade 2", fill=col.Edmondson[3], bty="n", cex=1.25, inset=c(0.3,0))
-legend("topleft", legend="tumor grade 3", fill=col.Edmondson[4], bty="n", cex=1.25, inset=c(0.5,0))
-legend("topleft", legend="tumor grade 4", fill=col.Edmondson[5], bty="n", cex=1.25, inset=c(0.7,0))
+legend("topleft", legend="adjacent tissue", fill=col.tissues[1], bty="n", cex=1.25)
+legend("topleft", legend="tumor", fill=col.tissues[2], bty="n", cex=1.25, inset=c(0.25,0))
+
 
 ##########################################################################
 
