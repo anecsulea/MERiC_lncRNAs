@@ -26,18 +26,8 @@ if(load){
     load(paste(pathRData, "data.expression.levels.MERiC.RData",sep=""))
     tpm.meric=tpm
 
-    load(paste(pathRData, "data.expression.levels.TCGA.RData",sep=""))
-    tpm.tcga=tpm
-
     ## sample info
-    load(paste(pathRData, "data.sample.info.RData",sep=""))
-    liver.samples.meric=liver.samples
-    tumor.samples.meric=tumor.samples
-
-    load(paste(pathRData, "data.sample.info.TCGA.RData",sep=""))
-    sampleinfo.tcga=sampleinfo
-    tumor.samples.tcga=sampleinfo.tcga[which(sampleinfo$sample_type=="Tumor"),]
-    nontumor.samples.tcga=sampleinfo.tcga[which(sampleinfo$sample_type=="Non-Tumor"),]
+    load(paste(pathRData, "data.sample.info.MERiC.RData",sep=""))
 
     ## sequence conservation
     load(paste(pathRData, "data.phastcons.30way.RData",sep=""))
@@ -93,10 +83,9 @@ if(prepare){
     }
 
     ## average expression level across various samples
-    meantpm.liver.meric=apply(tpm.meric[ ,liver.samples.meric$biopsyID],1, mean)
-    meantpm.tumor.meric=apply(tpm.meric[ ,tumor.samples.meric$tumor_biopsyID],1, mean)
-    meantpm.tumor.tcga=apply(tpm.tcga[, tumor.samples.tcga$id], 1, mean)
-    meantpm.nontumor.tcga=apply(tpm.tcga[, nontumor.samples.tcga$id], 1, mean)
+    meantpm.nontumor=apply(tpm.meric[ ,nontumor.samples$biopsyID],1, mean)
+    meantpm.tumor=apply(tpm.meric[ ,tumor.samples$tumor_biopsyID],1, mean)
+
 
     prepare=FALSE
 }
@@ -153,13 +142,13 @@ for(type in genetypes){
     this.xpos=xpos.genetypes[type]
     this.col=col.genetypes[type]
 
-    vioplot(log2(meantpm.tumor.meric[this.genes]+1), h=1, add=T, axes=F, at=this.xpos, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col=this.col)
+    vioplot(log2(meantpm.tumor[this.genes]+1), h=1, add=T, axes=F, at=this.xpos, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col=this.col)
 }
 
 abline(v=mean(xpos.genetypes[c("lnc.cited.more", "pc.cited.once")]), lty=3)
 abline(v=mean(xpos.genetypes[c("lnc.cited.once", "other.pc")]), lty=3)
 
-mtext("tumor", side=3, line=-1, at=mean(xpos.genetypes), cex=0.75)
+mtext("tumor", side=3, line=0.5, at=mean(xpos.genetypes), cex=0.75)
 
 axis(side=2, mgp=c(3,0.65,0))
 mtext("mean expression level (log2 TPM)", side=2, line=2.5, cex=0.75)
@@ -180,7 +169,7 @@ mtext("a", font=2, line=0.95, at=-1)
 
 ##########################################################################
 
-## expression levels in meric, liver samples
+## expression levels in meric, adjacent tissue samples
 
 par(mar=c(2.5, 4.75, 2.5, 0.75))
 
@@ -196,13 +185,13 @@ for(type in genetypes){
     this.xpos=xpos.genetypes[type]
     this.col=col.genetypes[type]
 
-    vioplot(log2(meantpm.liver.meric[this.genes]+1), h=1, add=T, axes=F, at=this.xpos, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col=this.col)
+    vioplot(log2(meantpm.nontumor[this.genes]+1), h=1, add=T, axes=F, at=this.xpos, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col=this.col)
 }
 
 abline(v=mean(xpos.genetypes[c("lnc.cited.more", "pc.cited.once")]), lty=3)
 abline(v=mean(xpos.genetypes[c("lnc.cited.once", "other.pc")]), lty=3)
 
-mtext("liver", side=3, line=-1, at=mean(xpos.genetypes), cex=0.75)
+mtext("adjacent tissue", side=3, line=0.5, at=mean(xpos.genetypes), cex=0.75)
 
 axis(side=2, mgp=c(3,0.65,0))
 mtext("mean expression level (log2 TPM)", side=2, line=2.5, cex=0.75)

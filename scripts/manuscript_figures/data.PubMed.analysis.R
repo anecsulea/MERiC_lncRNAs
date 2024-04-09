@@ -21,12 +21,6 @@ pubs=pubs[which(pubs$PublicationType%in%c("Journal Article", "Retracted Publicat
 
 print(paste(nrow(pubs), "pubs after filtering types"))
 
-## keep only pubs that cite genes
-
-pubs=pubs[which(pubs$CitedGenes!=""),]
-
-print(paste(nrow(pubs), "pubs after removing those that do not cite genes"))
-
 pubs$Year=as.numeric(pubs$Year)
 pubs=pubs[which(pubs$Year>=2000 & pubs$Year<=2022),]
 
