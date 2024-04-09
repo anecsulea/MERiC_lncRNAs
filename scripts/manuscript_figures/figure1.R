@@ -85,7 +85,7 @@ mtext(years, at=xpos, line=0.85,  adj=1, side=1, las=2, cex=0.7)
 mtext("year of publication", side=1, line=3.75, cex=0.85)
 
 axis(side=2, cex.axis=1.05, mgp=c(3, 0.75, 0))
-mtext("% of all HCC publications", side=2, line=2.25, cex=0.85)
+mtext("% of HCC publications", side=2, line=2.25, cex=0.85)
 
 mtext("a", side=3, line=0.5, at=-2.6, font=2, cex=1.1)
 

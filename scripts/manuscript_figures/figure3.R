@@ -73,7 +73,7 @@ if(prepare){
 
 ##########################################################################
 
-pdf(paste(pathFigures, "Figure3.pdf", sep=""), width=5.85, height=4.5)
+pdf(paste(pathFigures, "Figure3.pdf", sep=""), width=5.85, height=5.5)
 
 ##########################################################################
 
@@ -109,9 +109,17 @@ for(type in c("tnt.meric", "grades")){
 
     ## proportion of significant genes
 
-    par(mar=c(3, 3.75, 2.5, 1.75))
+    par(mar=c(3, 3.75, 3.5, 1.75))
 
-    plot(1, type="n", xlab="", ylab="", axes=F, ylim=c(0,60), xlim=c(0.5,8))
+    if(type=="tnt.meric"){
+        ylim=c(0,80)
+    }
+
+     if(type=="grades"){
+        ylim=c(0,30)
+    }
+
+    plot(1, type="n", xlab="", ylab="", axes=F, ylim=ylim, xlim=c(0.5,8))
 
     for(genetype in genetypes){
         genes=get(genetype)
@@ -131,10 +139,10 @@ for(type in c("tnt.meric", "grades")){
 
 
     mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=0.75, cex=0.75)
-    mtext(">1", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=1.75, cex=0.75)
+    mtext(">1 articles", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=1.75, cex=0.75)
 
     mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=0.75, cex=0.75)
-    mtext("1", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=1.75, cex=0.75)
+    mtext("1 article", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=1.75, cex=0.75)
 
     mtext("not cited", side=1, at=mean(xpos.genetypes[c("other.pc", "other.lnc")]),line=1.25, cex=0.75)
 
@@ -148,18 +156,27 @@ for(type in c("tnt.meric", "grades")){
 
     mtext("% differentially expressed", side=2, line=2.5, cex=0.75)
 
-    mtext(paste("differential expression,", legends[type]), line=1, at=9.5, side=3, cex=0.75)
+    mtext(paste("differential expression,", legends[type]), line=2, at=9.5, side=3, cex=0.75)
 
-    mtext(labels[plotindex], font=2, side=3, line=-0.5, at=-1.25, cex=0.85)
+    mtext(labels[plotindex], font=2, side=3, line=0.5, at=-1.25, cex=0.95)
     plotindex=plotindex+1
 
     ##########################################################################
 
      ## proportion of significant neighbors
 
-    par(mar=c(3, 3.75, 2.5, 1.75))
+    par(mar=c(3, 3.75, 3.5, 1.75))
 
-    plot(1, type="n", xlab="", ylab="", axes=F, ylim=c(0,30), xlim=c(0.5,8))
+
+    if(type=="tnt.meric"){
+        ylim=c(0,40)
+    }
+
+     if(type=="grades"){
+        ylim=c(0,20)
+    }
+
+    plot(1, type="n", xlab="", ylab="", axes=F, ylim=ylim, xlim=c(0.5,8))
 
     for(genetype in genetypes){
         genes=get(genetype)
@@ -180,10 +197,10 @@ for(type in c("tnt.meric", "grades")){
 
 
     mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=0.75, cex=0.75)
-    mtext(">1", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=1.75, cex=0.75)
+    mtext(">1 articles", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=1.75, cex=0.75)
 
     mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=0.75, cex=0.75)
-    mtext("1", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=1.75, cex=0.75)
+    mtext("1 article", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=1.75, cex=0.75)
 
     mtext("not cited", side=1, at=mean(xpos.genetypes[c("other.pc", "other.lnc")]),line=1.25, cex=0.75)
 
@@ -197,7 +214,7 @@ for(type in c("tnt.meric", "grades")){
 
     mtext("% DE neighbors", side=2, line=2.5, cex=0.75)
 
-    mtext(labels[plotindex], font=2, side=3, line=-0.5, at=-1.25, cex=0.85)
+    mtext(labels[plotindex], font=2, side=3, line=0.5, at=-1.25, cex=0.95)
     plotindex=plotindex+1
 
 }
