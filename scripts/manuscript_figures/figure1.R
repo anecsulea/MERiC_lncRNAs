@@ -47,7 +47,7 @@ pdf(paste(pathFigures, "Figure1.pdf", sep=""), width=6.85, height=3.5)
 m=matrix(rep(NA, 2*20), nrow=2)
 
 for(i in 1:2){
-  m[i,]=c(rep(1, 8), rep(2, 12))
+  m[i,]=c(rep(1, 7), rep(2, 13))
 }
 
 layout(m)
@@ -66,18 +66,12 @@ xpos=1:length(years)
 width=0.25
 
 xlim=c(0.5, length(years)+0.5)
-ylim=c(0, max(proplnc)*1.1)
+ylim=c(0, max(nblnc)*1.1)
 
 par(mar=c(6.0, 3.75, 2.1, 0.75))
 
 plot(1, xlim=xlim, ylim=ylim, type="n", axes=F, xlab="", ylab="")
-rect(xpos-width, 0,  xpos+width, proplnc, col="steelblue", border=NA)
-
-## nb lncRNA papers each year
-
-stx=c(1:length(nblnc))
-text(nblnc[stx], x=xpos[stx], y=proplnc[stx]+0.35, cex=1)
-
+rect(xpos-width, 0,  xpos+width, nblnc, col="steelblue", border=NA)
 
 axis(side=1, at=xpos, labels=rep("", length(xpos)), mgp=c(3, 0.5, 0))
 mtext(years, at=xpos, line=0.85,  adj=1, side=1, las=2, cex=0.7)
@@ -85,9 +79,9 @@ mtext(years, at=xpos, line=0.85,  adj=1, side=1, las=2, cex=0.7)
 mtext("year of publication", side=1, line=3.75, cex=0.85)
 
 axis(side=2, cex.axis=1.05, mgp=c(3, 0.75, 0))
-mtext("% of HCC publications", side=2, line=2.25, cex=0.85)
+mtext("number of lncRNA publications", side=2, line=2.25, cex=0.85)
 
-mtext("a", side=3, line=0.5, at=-2.6, font=2, cex=1.1)
+mtext("a", side=3, line=0.5, at=-3.1, font=2, cex=1.1)
 
 #############################################################################
 
@@ -174,7 +168,7 @@ for(i in uniquenb){
 
 }
 
-mtext("b", side=3, line=0.5, at=-7.15, font=2, cex=1.1)
+mtext("b", side=3, line=0.5, at=-6.7, font=2, cex=1.1)
 
 ##########################################################################
 
