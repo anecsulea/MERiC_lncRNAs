@@ -5,6 +5,7 @@ if(!("pathFigures" %in% objects())){
     pathFigures="../../data_for_publication/main_figures/"
 
     maxFDR=0.01
+    minLFC=0
 
     library(vioplot)
 
@@ -46,13 +47,19 @@ if(prepare){
     ## proportion differentially expressed
 
     nb.significant=list()
-    nb.neighbor.significant=list() ## in what fraction of cases the gene has a close bidirectional promoter and the neighbor is signfiicant
+    nb.upregulated=list()
+    nb.downregulated=list()
+    nb.neighbor.significant=list() ## in what fraction of cases the gene has a close bidirectional promoter and the neighbor is significant
+
+    lfc.significant=list()
+
 
     for(type in c("tnt.meric", "grades")){
         this.diffexp=get(paste("diffexp",type,sep="."))
 
         nb.significant[[type]]=list()
         nb.neighbor.significant[[type]]=list()
+        lfc.significant[[type]]=list()
 
         this.biprom=biprom1kb
 
@@ -64,7 +71,13 @@ if(prepare){
             genes=get(genetype)
 
             nb.significant[[type]][[genetype]]=length(which(this.diffexp$padj < maxFDR & rownames(this.diffexp)%in%genes))
+
+            nb.upregulated[[type]][[genetype]]=length(which(this.diffexp$padj < maxFDR & rownames(this.diffexp)%in%genes & this.diffexp$log2FoldChange>minLFC))
+            nb.downregulated[[type]][[genetype]]=length(which(this.diffexp$padj < maxFDR & rownames(this.diffexp)%in%genes & this.diffexp$log2FoldChange< (-minLFC)))
+
             nb.neighbor.significant[[type]][[genetype]]=length(which(genes%in%this.biprom$GeneID[which(this.biprom$NeighborSignificant)]))
+
+            lfc.significant[[type]][[genetype]]=this.diffexp[intersect(signif.genes, genes),"log2FoldChange"]
         }
     }
 
@@ -73,7 +86,7 @@ if(prepare){
 
 ##########################################################################
 
-pdf(paste(pathFigures, "Figure3.pdf", sep=""), width=5.85, height=5.5)
+pdf(paste(pathFigures, "Figure3.pdf", sep=""), width=4.85, height=5.5)
 
 ##########################################################################
 
@@ -86,10 +99,13 @@ layout(m)
 
 ##########################################################################
 
-legends=c("tumor vs. adjacent tissue", "high grades vs. low grades")
+legends=c("tumor", "high grades")
 names(legends)=c("tnt.meric", "grades")
 
 genetypes=c("pc.cited.more", "pc.cited.once", "other.pc", "lnc.cited.more", "lnc.cited.once",  "other.lnc")
+
+lty.genetypes=rep(1:3,2)
+names(lty.genetypes)=genetypes
 
 xpos.genetypes=c(1, 3.5, 6, 2,  4.5, 7)
 names(xpos.genetypes)=genetypes
@@ -107,16 +123,16 @@ plotindex=1
 
 for(type in c("tnt.meric", "grades")){
 
-    ## proportion of significant genes
+    ## proportion of up-regulated genes
 
-    par(mar=c(3, 3.75, 3.5, 1.75))
+    par(mar=c(3, 3.75, 3.5, 1))
 
     if(type=="tnt.meric"){
-        ylim=c(0,80)
+        ylim=c(0,60)
     }
 
      if(type=="grades"){
-        ylim=c(0,30)
+        ylim=c(0,25)
     }
 
     plot(1, type="n", xlab="", ylab="", axes=F, ylim=ylim, xlim=c(0.5,8))
@@ -124,7 +140,7 @@ for(type in c("tnt.meric", "grades")){
     for(genetype in genetypes){
         genes=get(genetype)
 
-        nb.signif=nb.significant[[type]][[genetype]]
+        nb.signif=nb.upregulated[[type]][[genetype]]
         nb.tot=length(genes)
 
         this.prop=100*nb.signif/nb.tot
@@ -154,26 +170,25 @@ for(type in c("tnt.meric", "grades")){
     abline(v=mean(xpos.genetypes[c("lnc.cited.more", "pc.cited.once")]), lty=3)
     abline(v=mean(xpos.genetypes[c("lnc.cited.once", "other.pc")]), lty=3)
 
-    mtext("% differentially expressed", side=2, line=2.5, cex=0.75)
+    mtext("% up-regulated", side=2, line=2.5, cex=0.75)
 
-    mtext(paste("differential expression,", legends[type]), line=2, at=9.5, side=3, cex=0.75)
+    mtext(paste("up-regulated in", legends[type]), line=1, at=4, side=3, cex=0.75)
 
-    mtext(labels[plotindex], font=2, side=3, line=0.5, at=-1.25, cex=0.95)
+    mtext(labels[plotindex], font=2, side=3, line=1.5, at=-1.65, cex=0.95)
     plotindex=plotindex+1
 
-    ##########################################################################
+##########################################################################
 
-     ## proportion of significant neighbors
+  ## proportion of down-regulated genes
 
-    par(mar=c(3, 3.75, 3.5, 1.75))
-
+    par(mar=c(3, 3.75, 3.5, 1))
 
     if(type=="tnt.meric"){
         ylim=c(0,40)
     }
 
      if(type=="grades"){
-        ylim=c(0,20)
+        ylim=c(0,15)
     }
 
     plot(1, type="n", xlab="", ylab="", axes=F, ylim=ylim, xlim=c(0.5,8))
@@ -181,7 +196,7 @@ for(type in c("tnt.meric", "grades")){
     for(genetype in genetypes){
         genes=get(genetype)
 
-        nb.signif=nb.neighbor.significant[[type]][[genetype]]
+        nb.signif=nb.downregulated[[type]][[genetype]]
         nb.tot=length(genes)
 
         this.prop=100*nb.signif/nb.tot
@@ -193,7 +208,6 @@ for(type in c("tnt.meric", "grades")){
         rect(this.xpos-width, 0, this.xpos+width, this.prop, col=this.col)
         segments(this.xpos, this.conf[1], this.xpos, this.conf[2], lwd=1.5)
     }
-
 
 
     mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=0.75, cex=0.75)
@@ -212,9 +226,11 @@ for(type in c("tnt.meric", "grades")){
     abline(v=mean(xpos.genetypes[c("lnc.cited.more", "pc.cited.once")]), lty=3)
     abline(v=mean(xpos.genetypes[c("lnc.cited.once", "other.pc")]), lty=3)
 
-    mtext("% DE neighbors", side=2, line=2.5, cex=0.75)
+    mtext("% down-regulated", side=2, line=2.5, cex=0.75)
 
-    mtext(labels[plotindex], font=2, side=3, line=0.5, at=-1.25, cex=0.95)
+    mtext(paste("down-regulated in", legends[type]), line=1, at=4, side=3, cex=0.75)
+
+    mtext(labels[plotindex], font=2, side=3, line=1.5, at=-1.65, cex=0.95)
     plotindex=plotindex+1
 
 }
