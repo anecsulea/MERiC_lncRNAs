@@ -110,7 +110,18 @@ if(prepare){
         }
     }
 
-  prepare=FALSE
+    ## compute expression difference between paired biopsies
+
+    tpm.tumor=tpm.meric[, tumor.samples$tumor_biopsyID]
+    meantpm.tumor.patient=t(apply(tpm.tumor, 1, function(x) tapply(as.numeric(x), as.factor(tumor.samples$Patient_ID), mean)))
+    
+
+    tpm.nontumor=tpm.meric[, nontumor.samples$biopsyID]
+    meantpm.nontumor.patient=t(apply(tpm.nontumor,1, function(x) tapply(as.numeric(x), as.factor(nontumor.samples$Patient_ID), mean)))
+
+    unique.patients=unique(tumor.samples$Patient_ID)
+    
+    prepare=FALSE
 }
 
 #############################################################################
@@ -249,23 +260,36 @@ for(id in highly.cited.lnc){
     print(name)
 
     ## gene expression values for sample categories
-    this.exp.tumor=log2(as.numeric(tpm[id, tumor.samples$tumor_biopsyID])+1)
-    this.exp.liver=log2(as.numeric(tpm[id, liver.samples$biopsyID])+1)
+    this.exp.tumor=as.numeric(meantpm.tumor.patient[id, unique.patients])
+    this.exp.nontumor=as.numeric(meantpm.nontumor.patient[id, unique.patients])
+
+    this.meanexp=(this.exp.tumor+this.exp.nontumor)/2
+
+    this.diffexp=(this.exp.tumor-this.exp.nontumor)/this.meanexp
 
     ## difference between tumor and liver
 
     par(mar=c(0.5, 6.5, 0.1, 0.15))
 
-    xlim=range(c(this.exp.liver, this.exp.tumor))
-    ylim=c(0.5,2.5)
+    ## xlim=range(c(this.exp.nontumor, this.exp.tumor))
+
+    xlim=c(-2,2)
+    ylim=c(0.25, 1.75)
     plot(1, type="n", xlim=xlim, ylim=ylim, axes=F, xlab="", ylab="")
 
-    vioplot(this.exp.tumor, h=0.5, add=T, axes=F, at=2, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="darkred", horizontal=T)
-    vioplot(this.exp.liver, h=0.5, add=T, axes=F, at=1, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="gray40", horizontal=T)
+    vioplot(this.diffexp, h=0.25, add=T, axes=F, at=1, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="gray60", horizontal=T)
 
+    ## axis if last plot
+    if(id==highly.cited.lnc[length(highly.cited.lnc)]){
+        axis(side=1, at=seq(from=-2, to=2, by=2), mgp=c(3, 0.5, 0), cex=0.7)
+        axis(side=1, at=seq(from=-1, to=1, by=2), mgp=c(3, 0.5, 0), cex=0.7)
+
+        segments(0, 0, 0, 58, lty=2, col="darkred", xpd=NA)
+    }
+  
     mtext(name, side=2, las=2, cex=0.6, line=6.2, font=3, adj=0)
 
-    abline(h=0.25, lty=3, col="gray40", xpd=NA)
+    abline(h=0.2, lty=3, col="gray40", xpd=NA)
    ## segments(-10, 0.25, xlim[2]+diff(xlim)/10, 0.25, lty=3, xpd=NA)
 
     ## differential expression
@@ -281,21 +305,23 @@ for(id in highly.cited.lnc){
 
     ## tumor vs non-tumor, paired samples
 
-    if(de.table[id,"tissues"]==1){
+    if(de.table[id,"tnt.meric"]==1){
         arrows(x2, 0.1, x2, 0.9, length=0.035, lwd=1.15, col="black")
     }
-    if(de.table[id,"tissues"]==0.5){
+    if(de.table[id,"tnt.meric"]==0.5){
         arrows(x2, 0.1, x2, 0.9, length=0.035, lwd=1.15, col="gray50")
     }
 
-    if(de.table[id,"tissues"]==-1){
+    if(de.table[id,"tnt.meric"]==-1){
         arrows(x2, 0.9, x2, 0.1, length=0.035, lwd=1.15, col="black")
     }
-    if(de.table[id,"tissues"]==-0.5){
+    if(de.table[id,"tnt.meric"]==-0.5){
         arrows(x2, 0.9, x2, 0.1, length=0.035, lwd=1.15, col="gray50")
     }
 
     ## plot for tumors only
+
+    this.exp.tumor=as.numeric(tpm.meric[id, tumor.samples$tumor_biopsyID])
 
     ylim=c(0, max(c(log2(this.exp.tumor+1),1)))
 
@@ -351,7 +377,8 @@ text("1 & 2", x=1.01, y=1.1, cex=0.9, xpd=NA)
 text("vs.", x=1.01, y=0.38, cex=0.9, xpd=NA, font=3)
 text("3 & 4", x=1.01, y=-0.36, cex=0.9, xpd=NA)
 
-text("log2(TPM+1)", x=0.16, y=0.12, xpd=NA, cex=0.9)
+text("TPM", x=0.05, y=0.45, cex=0.9, xpd=NA)
+text("normalized difference", x=0.05, y=-0.35, cex=0.9, xpd=NA)
 
 
 text("tumor", x=0.288, y=0.45, cex=0.9, xpd=NA)
@@ -361,10 +388,9 @@ text("adjacent tissue", x=0.288, y=-0.8, cex=0.9, xpd=NA)
 legend("topleft", legend=as.character(1:4), fill=col.Edmondson, border=col.Edmondson, bty="n", cex=0.85, inset=c(0.77, 0), horiz=T, xpd=NA)
 
 
-text("log2(TPM+1)", x=0.37, y=0.3, cex=0.9, xpd=NA)
-text("Edmondson grade", x=0.72, y=0.3, cex=0.9, xpd=NA)
 
-legend("bottomleft", fill=c("darkred", "gray40"), legend=c("tumor", "liver"), inset=c(0,-1), xpd=NA, bty="n")
+text("log2(TPM+1)", x=0.37, y=0.12, xpd=NA, cex=0.9)
+text("Edmondson grade", x=0.72, y=0.3, cex=0.9, xpd=NA)
 
 #############################################################################
 
