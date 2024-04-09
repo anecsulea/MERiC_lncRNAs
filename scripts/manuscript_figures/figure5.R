@@ -130,7 +130,7 @@ rect(xpos-width, 0,  xpos+width, prop.retracted, col="steelblue", border=NA)
 
 rect(max(xpos)+1.5-width,0, max(xpos)+1.5+width, prop.tot.retracted, col="gray40", border=NA)
 
-axis(side=2, mgp=c(3,0.65,0), cex.axis=0.9)
+axis(side=2, mgp=c(3,0.65,0), cex.axis=0.95)
 axis(side=1, at=c(xpos, max(xpos)+1.5), labels=rep("", length(xpos)+1))
 mtext(years, side=1, at=xpos, line=0.75, las=2, cex=0.7)
 
@@ -151,7 +151,7 @@ rect(xpos-width, 0,  xpos+width, prop.retracted.lnc, col="steelblue", border=NA)
 
 rect(max(xpos)+1.5-width,0, max(xpos)+1.5+width, prop.tot.retracted.lnc, col="gray40", border=NA)
 
-axis(side=2, mgp=c(3,0.65,0), cex.axis=0.9)
+axis(side=2, mgp=c(3,0.65,0), cex.axis=0.95)
 axis(side=1, at=c(xpos, max(xpos)+1.5), labels=rep("", length(xpos)+1))
 mtext(years, side=1, at=xpos, line=0.75, las=2, cex=0.7)
 
