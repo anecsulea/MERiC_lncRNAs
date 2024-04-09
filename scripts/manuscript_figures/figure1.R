@@ -38,7 +38,7 @@ if(prepare){
 ##########################################################################
 ##########################################################################
 
-pdf(paste(pathFigures, "Figure1.pdf", sep=""), width=6.85, height=3.5)
+pdf(paste(pathFigures, "Figure1.pdf", sep=""), width=6.85, height=4)
 
 ##########################################################################
 
@@ -59,7 +59,6 @@ layout(m)
 years=2009:2022
 nbtot=nb.articles.per.year[as.character(years)]
 nblnc=nb.lncarticles.per.year[as.character(years)]
-proplnc=100*nblnc/nbtot
 
 xpos=1:length(years)
 
