@@ -23,7 +23,7 @@ if(load){
     load(paste(pathRData, "data.diffexp.RData",sep=""))
 
      ## sample info
-    load(paste(pathRData, "data.sample.info.RData",sep=""))
+    load(paste(pathRData, "data.sample.info.MERiC.RData",sep=""))
 
     ## TPM
     load(paste(pathRData, "data.expression.levels.MERiC.RData",sep=""))
@@ -76,7 +76,7 @@ if(prepare){
     de.table=matrix(rep(NA, length(highly.cited.lnc)*2), nrow=length(highly.cited.lnc))
 
     rownames(de.table)=highly.cited.lnc
-    colnames(de.table)=c("tissues", "grades")
+    colnames(de.table)=c("tnt.meric", "grades")
 
     for(test in colnames(de.table)){
         this.de=get(paste("diffexp", test, sep="."))
@@ -356,7 +356,7 @@ text("log2(TPM+1)", x=0.16, y=0.12, xpd=NA, cex=0.9)
 
 text("tumor", x=0.288, y=0.45, cex=0.9, xpd=NA)
 text("vs.", x=0.288, y=-0.2, cex=0.9, xpd=NA, font=3)
-text("liver", x=0.288, y=-0.8, cex=0.9, xpd=NA)
+text("adjacent tissue", x=0.288, y=-0.8, cex=0.9, xpd=NA)
 
 legend("topleft", legend=as.character(1:4), fill=col.Edmondson, border=col.Edmondson, bty="n", cex=0.85, inset=c(0.77, 0), horiz=T, xpd=NA)
 
