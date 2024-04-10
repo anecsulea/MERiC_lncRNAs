@@ -103,7 +103,7 @@ layout(m)
 
 genetypes=c("pc.cited.more", "pc.cited.once", "other.pc", "lnc.cited.more", "lnc.cited.once",  "other.lnc")
 
-titles=c("protein-coding, cited >1", "protein-coding, cited 1", "protein-coding, not cited", "lncRNAs, cited >1", "lncRNAs, cited 1", "lncRNAs, not cited")
+titles=c("protein-coding, cited >1 articles", "protein-coding, cited 1 article", "protein-coding, not cited", "lncRNAs, cited >1 articles", "lncRNAs, cited 1 article", "lncRNAs, not cited")
 names(titles)=genetypes
 
 labels=letters[1:6]

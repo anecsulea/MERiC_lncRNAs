@@ -20,14 +20,14 @@ if(load){
     load(paste(pathRData, "data.gene.info.RData", sep=""))
 
     ## sampleinfo
-    load(paste(pathRData, "data.sample.info.RData",sep=""))
+    load(paste(pathRData, "data.sample.info.MERiC.RData",sep=""))
 
     ## TPM
     load(paste(pathRData, "data.expression.levels.MERiC.RData",sep=""))
     tpm.meric=tpm
 
     col.Edmondson=c("gray40", "gold", "darkorange", "indianred", "red")
-    names(col.Edmondson)=c("liver", "ES1", "ES2", "ES3", "ES4")
+    names(col.Edmondson)=c("nontumor", "ES1", "ES2", "ES3", "ES4")
 
     load=FALSE
 }
@@ -46,10 +46,10 @@ if(prepare){
     pc.cited.all=names(nb.citations.pc)
     other.pc=setdiff(pc, pc.cited.all)
 
-    samples=c(liver.samples$biopsyID, tumor.samples$tumor_biopsyID)
-    eg=c(rep("liver", nrow(liver.samples)), paste("ES",tumor.samples$edmondson,sep=""))
+    samples=c(nontumor.samples$biopsyID, tumor.samples$tumor_biopsyID)
+    eg=c(rep("nontumor", nrow(nontumor.samples)), paste("ES",tumor.samples$edmondson,sep=""))
 
-    samples.liver=liver.samples$biopsyID
+    samples.nontumor=nontumor.samples$biopsyID
     samples.eg1=tumor.samples$tumor_biopsyID[which(tumor.samples$edmondson==1)]
     samples.eg2=tumor.samples$tumor_biopsyID[which(tumor.samples$edmondson==2)]
     samples.eg3=tumor.samples$tumor_biopsyID[which(tumor.samples$edmondson==3)]
@@ -104,7 +104,7 @@ layout(m)
 
 genetypes=c("pc.cited.more", "pc.cited.once", "other.pc", "lnc.cited.more", "lnc.cited.once",  "other.lnc")
 
-titles=c("protein-coding, cited >1", "protein-coding, cited 1", "protein-coding, not cited", "lncRNAs, cited >1", "lncRNAs, cited 1", "lncRNAs, not cited")
+titles=c("protein-coding, cited >1 articles", "protein-coding, cited 1 aticle", "protein-coding, not cited", "lncRNAs, cited >1 articles", "lncRNAs, cited 1 article", "lncRNAs, not cited")
 names(titles)=genetypes
 
 labels=letters[1:6]
@@ -117,12 +117,12 @@ for(genetype in genetypes){
 
     ## first factorial map
 
-    min.coord.liver=min(as.numeric(this.pca$li[liver.samples$biopsyID,1]))
+    mean.coord.nontumor=mean(as.numeric(this.pca$li[nontumor.samples$biopsyID,1]))
     mean.coord.tumor=mean(as.numeric(this.pca$li[tumor.samples$tumor_biopsyID,1]))
 
     sign=1
 
-    if(min.coord.liver>mean.coord.tumor){
+    if(mean.coord.nontumor>mean.coord.tumor){
         sign=-1
     }
 
@@ -148,7 +148,7 @@ for(genetype in genetypes){
     ## coordinates on first axis
     par(mar=c(4,3.1,2.1,1.1))
 
-    boxplot(sign*this.pca$li[samples.liver,1], sign*this.pca$li[samples.eg1,1], sign*this.pca$li[samples.eg2,1], sign*this.pca$li[samples.eg3,1], sign*this.pca$li[samples.eg4,1], col=col.Edmondson, pch=20, axes=F)
+    boxplot(sign*this.pca$li[samples.nontumor,1], sign*this.pca$li[samples.eg1,1], sign*this.pca$li[samples.eg2,1], sign*this.pca$li[samples.eg3,1], sign*this.pca$li[samples.eg4,1], col=col.Edmondson, pch=20, axes=F)
 
     axis(side=1, mgp=c(3,0.5,0), at=1:5, labels=rep("",5))
     axis(side=2, mgp=c(3,0.65,0))
@@ -165,11 +165,11 @@ for(genetype in genetypes){
 par(mar=c(0.5,3.1,0.1,1.1))
 plot(1, type="n", xlab="", ylab="", axes=F)
 
-legend("topleft", legend="liver", fill=col.Edmondson[1], bty="n", cex=1.25)
-legend("topleft", legend="tumor grade 1", fill=col.Edmondson[2], bty="n", cex=1.25, inset=c(0.1,0))
-legend("topleft", legend="tumor grade 2", fill=col.Edmondson[3], bty="n", cex=1.25, inset=c(0.3,0))
-legend("topleft", legend="tumor grade 3", fill=col.Edmondson[4], bty="n", cex=1.25, inset=c(0.5,0))
-legend("topleft", legend="tumor grade 4", fill=col.Edmondson[5], bty="n", cex=1.25, inset=c(0.7,0))
+legend("topleft", legend="adjacent tissue", fill=col.Edmondson[1], bty="n", cex=1.25, inset=c(-0.025,0), xpd=NA)
+legend("topleft", legend="tumor grade 1", fill=col.Edmondson[2], bty="n", cex=1.25, inset=c(0.175,0), xpd=NA)
+legend("topleft", legend="tumor grade 2", fill=col.Edmondson[3], bty="n", cex=1.25, inset=c(0.375,0), xpd=NA)
+legend("topleft", legend="tumor grade 3", fill=col.Edmondson[4], bty="n", cex=1.25, inset=c(0.575,0), xpd=NA)
+legend("topleft", legend="tumor grade 4", fill=col.Edmondson[5], bty="n", cex=1.25, inset=c(0.775,0), xpd=NA)
 
 ##########################################################################
 
