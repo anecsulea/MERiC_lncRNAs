@@ -4,6 +4,8 @@ if(!("pathFigures"%in%objects())){
     pathRData="../../data_for_publication/RData/"
     pathFigures="../../data_for_publication/main_figures/"
 
+    library(vioplot)
+
     load=TRUE
     prepare=TRUE
 }
