@@ -54,7 +54,7 @@ if(prepare){
 
 ##########################################################################
 
-pdf(paste(pathFigures, "SupplementaryFigure1.pdf", sep=""), width=5.85, height=2.75)
+pdf(paste(pathFigures, "SupplementaryFigure2.pdf", sep=""), width=5.85, height=2.75)
 
 ##########################################################################
 
