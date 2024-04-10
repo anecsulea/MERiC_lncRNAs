@@ -4,7 +4,7 @@ if(!("pathFigures" %in% objects())){
     pathRData="../../data_for_publication/RData/"
     pathFigures="../../data_for_publication/main_figures/"
 
-    maxFDR=0.01
+    maxFDR=0.05
     minLFC=0
 
     library(vioplot)
