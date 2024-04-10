@@ -118,9 +118,9 @@ mtext("not cited", side=1, at=mean(xpos.genetypes[c("other.pc", "other.lnc")]),l
 
 axis(side=1, at=xpos.genetypes, labels=rep("", length(xpos.genetypes)), mgp=c(3,0.5,0))
 
-legend("topright", legend=c("protein-coding", "lncRNAs"), fill=c("indianred", "steelblue"), xpd=NA, inset=c(-0.12, -0.05), cex=1.1, bty="n")
+legend("topright", legend=c("protein-coding", "lncRNAs"), fill=c("indianred", "steelblue"), xpd=NA, inset=c(-0.13, -0.05), cex=1.1, bty="n")
 
-mtext("a", font=2, line=0.95, at=-1.35)
+mtext("a", font=2, line=0.95, at=-1.3)
 
 ##########################################################################
 
@@ -161,7 +161,7 @@ mtext("not cited", side=1, at=mean(xpos.genetypes[c("other.pc", "other.lnc")]),l
 
 axis(side=1, at=xpos.genetypes, labels=rep("", length(xpos.genetypes)), mgp=c(3,0.5,0))
 
-mtext("b", font=2, line=0.95, at=-1.35)
+mtext("b", font=2, line=0.95, at=-1.3)
 
 ##########################################################################
 
