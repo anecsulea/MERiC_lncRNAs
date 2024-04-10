@@ -114,13 +114,13 @@ if(prepare){
 
     tpm.tumor=tpm.meric[, tumor.samples$tumor_biopsyID]
     meantpm.tumor.patient=t(apply(tpm.tumor, 1, function(x) tapply(as.numeric(x), as.factor(tumor.samples$Patient_ID), mean)))
-    
+
 
     tpm.nontumor=tpm.meric[, nontumor.samples$biopsyID]
     meantpm.nontumor.patient=t(apply(tpm.nontumor,1, function(x) tapply(as.numeric(x), as.factor(nontumor.samples$Patient_ID), mean)))
 
     unique.patients=unique(tumor.samples$Patient_ID)
-    
+
     prepare=FALSE
 }
 
@@ -286,7 +286,7 @@ for(id in highly.cited.lnc){
 
         segments(0, 0, 0, 58, lty=2, col="darkred", xpd=NA)
     }
-  
+
     mtext(name, side=2, las=2, cex=0.6, line=6.2, font=3, adj=0)
 
     abline(h=0.2, lty=3, col="gray40", xpd=NA)

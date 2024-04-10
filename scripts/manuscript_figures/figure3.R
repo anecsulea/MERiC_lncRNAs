@@ -132,7 +132,7 @@ for(type in c("tnt.meric", "grades")){
     }
 
      if(type=="grades"){
-        ylim=c(0,25)
+        ylim=c(0,30)
     }
 
     plot(1, type="n", xlab="", ylab="", axes=F, ylim=ylim, xlim=c(0.5,8))
@@ -184,11 +184,11 @@ for(type in c("tnt.meric", "grades")){
     par(mar=c(3, 3.75, 3.5, 1))
 
     if(type=="tnt.meric"){
-        ylim=c(0,40)
+        ylim=c(0,60)
     }
 
      if(type=="grades"){
-        ylim=c(0,15)
+        ylim=c(0,30)
     }
 
     plot(1, type="n", xlab="", ylab="", axes=F, ylim=ylim, xlim=c(0.5,8))
