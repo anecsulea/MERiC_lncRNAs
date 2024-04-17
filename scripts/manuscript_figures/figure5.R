@@ -52,8 +52,6 @@ if(prepare){
     prop.retracted.pc.articles.per.year=nb.pc.retractions.per.year/(nb.pc.retractions.per.year+nb.pc.articles.per.year)
     prop.retracted.other.articles.per.year=nb.other.retractions.per.year/(nb.other.retractions.per.year+nb.other.articles.per.year)
 
-    prop.retracted.all.articles.per.year=nb.all.retractions.per.year/(nb.all.retractions.per.year+nb.all.articles.per.year)
-
     m.retracted=matrix(100*c(prop.retracted.pc.articles.per.year, prop.retracted.lncRNA.articles.per.year, prop.retracted.other.articles.per.year), nrow=3, byrow=T)
     rownames(m.retracted)=c("pc", "lnc", "other")
     colnames(m.retracted)=as.character(years)
