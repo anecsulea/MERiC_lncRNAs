@@ -54,11 +54,7 @@ if(prepare){
         nb.upregulated[[type]]=list()
         nb.downregulated[[type]]=list()
 
-        this.biprom=biprom1kb
-
         signif.genes=rownames(this.diffexp)[which(this.diffexp$padj < maxFDR)]
-
-        this.biprom$NeighborSignificant=unlist(lapply(this.biprom$GenesCloseTSS, function(x) any(unlist(strsplit(x, split=","))%in%signif.genes)))
 
         for(genetype in c("lnc.cited.once", "lnc.cited.more", "other.lnc", "pc.cited.once", "pc.cited.more", "other.pc")){
             genes=get(genetype)
