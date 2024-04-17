@@ -18,6 +18,8 @@ if(load){
 
 ##########################################################################
 
+## list of all publications
+
 write.table(pubs, file=paste(pathTables, "SupplementaryTable1.tsv",sep=""), row.names=F, col.names=T, sep="\t", quote=F)
 
 ##########################################################################
