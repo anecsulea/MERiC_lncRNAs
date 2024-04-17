@@ -25,9 +25,6 @@ if(load){
     ## differential expression
     load(paste(pathRData, "data.diffexp.RData",sep=""))
 
-    ## gene overlaps
-    load(paste(pathRData, "data.gene.overlaps.RData",sep=""))
-
     load=FALSE
 }
 
@@ -49,17 +46,13 @@ if(prepare){
     nb.significant=list()
     nb.upregulated=list()
     nb.downregulated=list()
-    nb.neighbor.significant=list() ## in what fraction of cases the gene has a close bidirectional promoter and the neighbor is significant
-
-    lfc.significant=list()
-
 
     for(type in c("tnt.meric", "grades")){
         this.diffexp=get(paste("diffexp",type,sep="."))
 
         nb.significant[[type]]=list()
-        nb.neighbor.significant[[type]]=list()
-        lfc.significant[[type]]=list()
+        nb.upregulated[[type]]=list()
+        nb.downregulated[[type]]=list()
 
         this.biprom=biprom1kb
 
@@ -74,10 +67,6 @@ if(prepare){
 
             nb.upregulated[[type]][[genetype]]=length(which(this.diffexp$padj < maxFDR & rownames(this.diffexp)%in%genes & this.diffexp$log2FoldChange>minLFC))
             nb.downregulated[[type]][[genetype]]=length(which(this.diffexp$padj < maxFDR & rownames(this.diffexp)%in%genes & this.diffexp$log2FoldChange< (-minLFC)))
-
-            nb.neighbor.significant[[type]][[genetype]]=length(which(genes%in%this.biprom$GeneID[which(this.biprom$NeighborSignificant)]))
-
-            lfc.significant[[type]][[genetype]]=this.diffexp[intersect(signif.genes, genes),"log2FoldChange"]
         }
     }
 

@@ -1,8 +1,11 @@
-#############################################################################
+##########################################################################
 
-if(!("pathFigures"%in%objects())){
+if(!("pathFigures" %in% objects())){
     pathRData="../../data_for_publication/RData/"
     pathFigures="../../data_for_publication/main_figures/"
+
+    maxFDR=0.05
+    minLFC=0
 
     library(vioplot)
 
@@ -10,11 +13,11 @@ if(!("pathFigures"%in%objects())){
     prepare=TRUE
 }
 
-#############################################################################
+##########################################################################
 
 if(load){
     ## cited lncRNAs
-    load(paste(pathRData, "data.PubMed.analysis.RData",sep=""))
+    load(paste(pathRData, "data.PubMed.analysis.RData", sep=""))
 
     ## gene info
     load(paste(pathRData, "data.gene.info.RData", sep=""))
@@ -22,186 +25,148 @@ if(load){
     ## differential expression
     load(paste(pathRData, "data.diffexp.RData",sep=""))
 
-     ## sample info
-    load(paste(pathRData, "data.sample.info.TCGA.RData",sep=""))
-
-    ## TPM
-    load(paste(pathRData, "data.expression.levels.TCGA.RData",sep=""))
-    tpm.tcga=tpm
-
-
-    maxFDR=0.05
-    minFC=1.5
+    ## gene overlaps
+    load(paste(pathRData, "data.gene.overlaps.RData",sep=""))
 
     load=FALSE
 }
 
-#############################################################################
+##########################################################################
 
 if(prepare){
-  ## for each gene, how many articles mention it
+    lnc.cited.once=names(nb.citations.lnc)[which(nb.citations.lnc==1)]
+    lnc.cited.more=names(nb.citations.lnc)[which(nb.citations.lnc>1)]
+    lnc.cited.all=names(nb.citations.lnc)
+    other.lnc=setdiff(lnc, lnc.cited.all)
 
-    highly.cited.lnc=names(nb.citations.lnc)[which(nb.citations.lnc>=10)]
+    pc.cited.once=names(nb.citations.pc)[which(nb.citations.pc==1)]
+    pc.cited.more=names(nb.citations.pc)[which(nb.citations.pc>1)]
+    pc.cited.all=names(nb.citations.pc)
+    other.pc=setdiff(pc, pc.cited.all)
 
-    highly.cited.lnc=highly.cited.lnc[order(nb.citations.lnc[highly.cited.lnc], decreasing=T)]
+    ## proportion differentially expressed
 
+    nb.neighbor.significant=list() ## in what fraction of cases the gene has a close bidirectional promoter and the neighbor is significant
 
-    ## DE table
+    for(type in c("tnt.meric", "grades", "tnt.tcga")){
+        this.diffexp=get(paste("diffexp",type,sep="."))
 
-    de.table=matrix(rep(NA, length(highly.cited.lnc)*1), nrow=length(highly.cited.lnc))
+        nb.neighbor.significant[[type]]=list()
 
-    rownames(de.table)=highly.cited.lnc
-    colnames(de.table)=c("tnt.tcga")
+        this.biprom=biprom1kb
 
-    for(test in colnames(de.table)){
-        this.de=get(paste("diffexp", test, sep="."))
-        tested=rownames(this.de)
-        signif.up=rownames(this.de)[which(this.de$padj<maxFDR & this.de$log2FoldChange>log2(minFC))]
-        signif.down=rownames(this.de)[which(this.de$padj<maxFDR & this.de$log2FoldChange<log2(1/minFC) )]
+        signif.genes=rownames(this.diffexp)[which(this.diffexp$padj < maxFDR)]
 
-        relax.up=rownames(this.de)[which(this.de$padj<maxFDR & this.de$log2FoldChange>0)]
-        relax.down=rownames(this.de)[which(this.de$padj<maxFDR & this.de$log2FoldChange<0 )]
+        this.biprom$NeighborSignificant=unlist(lapply(this.biprom$GenesCloseTSS, function(x) any(unlist(strsplit(x, split=","))%in%signif.genes)))
 
-        relax.up=setdiff(relax.up, signif.up)
-        relax.down=setdiff(relax.down, signif.down)
+        for(genetype in c("lnc.cited.once", "lnc.cited.more", "other.lnc", "pc.cited.once", "pc.cited.more", "other.pc")){
+            genes=get(genetype)
 
-        if(any(highly.cited.lnc%in%tested)){
-            de.table[intersect(highly.cited.lnc, tested), test]=0
-        }
-
-        if(any(highly.cited.lnc%in%signif.up)){
-            de.table[intersect(highly.cited.lnc, signif.up), test]=1
-        }
-        if(any(highly.cited.lnc%in%relax.up)){
-            de.table[intersect(highly.cited.lnc, relax.up), test]=0.5
-        }
-
-        if(any(highly.cited.lnc%in%signif.down)){
-            de.table[intersect(highly.cited.lnc, signif.down), test]=-1
-        }
-
-        if(any(highly.cited.lnc%in%relax.down)){
-            de.table[intersect(highly.cited.lnc, relax.down), test]=-0.5
+            nb.neighbor.significant[[type]][[genetype]]=length(which(genes%in%this.biprom$GeneID[which(this.biprom$NeighborSignificant)]))
         }
     }
-
-    ## compute expression difference between paired biopsies
-
-    tumor.samples=rownames(sampleinfo)[which(sampleinfo$sample_type=="Tumor")]
-    names(tumor.samples)=sampleinfo$case_id[which(sampleinfo$sample_type=="Tumor")]
-
-    nontumor.samples=rownames(sampleinfo)[which(sampleinfo$sample_type=="Non-Tumor")]
-    names(nontumor.samples)=sampleinfo$case_id[which(sampleinfo$sample_type=="Non-Tumor")]
-
-    print(all(names(tumor.samples)==names(nontumor.samples)))
-
-    tpm.tumor=tpm.tcga[, tumor.samples]
-    tpm.nontumor=tpm.tcga[, nontumor.samples]
-
-    unique.patients=names(tumor.samples)
 
     prepare=FALSE
 }
 
-#############################################################################
+##########################################################################
 
-## 1 column width 87 mm = 3.34 in
-## 2 columns width 180 mm = 7.04 in
-## max height: 9 in, including legend
+pdf(paste(pathFigures, "SupplementaryFigure6.pdf", sep=""), width=6.85, height=3)
 
-#############################################################################
+##########################################################################
 
-pdf(file=paste(pathFigures, "SupplementaryFigure6.pdf", sep=""), width=3.85, height=7)
+m=matrix(rep(NA, 1*15), nrow=1)
 
-m=matrix(rep(NA, 27*6), nrow=27)
-
-for(i in seq(from=1, by=1, length.out=length(highly.cited.lnc))){
-    j=2*i-1
-    m[i,]=c(rep(j,5), rep(j+1,1))
-}
-
-## legend
-
-for(i in 27){
-  M=max(m, na.rm=T)
-  m[i,]=rep(M+1, 6)
-}
+m[1,]=c(rep(1,5), rep(2,5), rep(3, 5))
 
 layout(m)
 
-#############################################################################
+##########################################################################
 
-## selected lncRNAs
+legends=c("tumor vs. adjacent tissue\nMERiC", "tumor grades\nMERiC", "tumor vs. adjacent tissue\nTCGA")
+names(legends)=c("tnt.meric", "grades", "tnt.tcga")
 
-for(id in highly.cited.lnc){
-    ## gene name
-    name=geneinfo[id,"Name"]
+genetypes=c("pc.cited.more", "pc.cited.once", "other.pc", "lnc.cited.more", "lnc.cited.once",  "other.lnc")
 
-    print(name)
+lty.genetypes=rep(1:3,2)
+names(lty.genetypes)=genetypes
 
-    ## gene expression values for sample categories
-    this.exp.tumor=as.numeric(tpm.tumor[id, ])
-    this.exp.nontumor=as.numeric(tpm.nontumor[id, ])
+xpos.genetypes=c(1, 3.5, 6, 2,  4.5, 7)
+names(xpos.genetypes)=genetypes
 
-    this.meanexp=(this.exp.tumor+this.exp.nontumor)/2
+width=diff(xpos.genetypes)[1]/8
 
-    this.diffexp=(this.exp.tumor-this.exp.nontumor)/this.meanexp
+col.genetypes=rep(c("indianred", "steelblue"), each=3)
+names(col.genetypes)=genetypes
 
-    ## difference between tumor and liver
+labels=letters[1:3]
 
-    par(mar=c(0.5, 6.5, 0.1, 0.15))
+##########################################################################
 
-    ## xlim=range(c(this.exp.nontumor, this.exp.tumor))
+plotindex=1
 
-    xlim=c(-2,2)
-    ylim=c(0.25, 1.75)
-    plot(1, type="n", xlim=xlim, ylim=ylim, axes=F, xlab="", ylab="")
+for(type in c("tnt.meric", "grades", "tnt.tcga")){
 
-    vioplot(this.diffexp, h=0.25, add=T, axes=F, at=1, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="gray60", horizontal=T)
+    par(mar=c(3, 3.75, 3.5, 1))
 
-    ## axis if last plot
-    if(id==highly.cited.lnc[length(highly.cited.lnc)]){
-        axis(side=1, at=seq(from=-2, to=2, by=2), mgp=c(3, 0.5, 0), cex=0.7)
-        axis(side=1, at=seq(from=-1, to=1, by=2), mgp=c(3, 0.5, 0), cex=0.7)
-
-        segments(0, 0, 0, 62, lty=2, col="darkred", xpd=NA)
+    if(type=="tnt.meric"){
+        ylim=c(0,40)
     }
 
-    mtext(name, side=2, las=2, cex=0.6, line=6.2, font=3, adj=0)
+    if(type=="grades"){
+         ylim=c(0,25)
+     }
 
-    abline(h=0.2, lty=3, col="gray40", xpd=NA)
-
-    ## differential expression
-
-    par(mar=c(0.5,1.65,0.1,0))
-    xlim=c(0,1)
-    ylim=c(0,1)
-    plot(1, type="n", xlab="", ylab="",axes=F, xlim=xlim, ylim=ylim, xaxs="i", yaxs="i")
-
-    ## tumor vs normal liver
-
-    x2=0.5
-
-    ## tumor vs non-tumor, paired samples
-
-    if(de.table[id,"tnt.tcga"]==1){
-        arrows(x2, 0.1, x2, 0.9, length=0.035, lwd=1.15, col="black")
-    }
-    if(de.table[id,"tnt.tcga"]==0.5){
-        arrows(x2, 0.1, x2, 0.9, length=0.035, lwd=1.15, col="gray50")
+    if(type=="tnt.tcga"){
+        ylim=c(0,40)
     }
 
-    if(de.table[id,"tnt.tcga"]==-1){
-        arrows(x2, 0.9, x2, 0.1, length=0.035, lwd=1.15, col="black")
-    }
-    if(de.table[id,"tnt.tcga"]==-0.5){
-        arrows(x2, 0.9, x2, 0.1, length=0.035, lwd=1.15, col="gray50")
+    plot(1, type="n", xlab="", ylab="", axes=F, ylim=ylim, xlim=c(0.5,8))
+
+    for(genetype in genetypes){
+        genes=get(genetype)
+
+        nb.signif.neighbors=nb.neighbor.significant[[type]][[genetype]]
+        nb.tot=length(genes)
+
+        this.prop=100*nb.signif.neighbors/nb.tot
+        this.conf=100*prop.test(nb.signif.neighbors, nb.tot)$conf
+
+        this.xpos=xpos.genetypes[genetype]
+        this.col=col.genetypes[genetype]
+
+        rect(this.xpos-width, 0, this.xpos+width, this.prop, col=this.col)
+        segments(this.xpos, this.conf[1], this.xpos, this.conf[2], lwd=1.5)
     }
 
+
+    mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=0.75, cex=0.75)
+    mtext(">1 articles", side=1, at=mean(xpos.genetypes[c("pc.cited.more", "lnc.cited.more")]),line=1.75, cex=0.75)
+
+    mtext("cited", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=0.75, cex=0.75)
+    mtext("1 article", side=1, at=mean(xpos.genetypes[c("pc.cited.once", "lnc.cited.once")]),line=1.75, cex=0.75)
+
+    mtext("not cited", side=1, at=mean(xpos.genetypes[c("other.pc", "other.lnc")]),line=1.25, cex=0.75)
+
+
+    axis(side=2, mgp=c(3,0.65,0))
+
+    axis(side=1, at=xpos.genetypes, labels=rep("",length(xpos.genetypes)))
+
+    abline(v=mean(xpos.genetypes[c("lnc.cited.more", "pc.cited.once")]), lty=3)
+    abline(v=mean(xpos.genetypes[c("lnc.cited.once", "other.pc")]), lty=3)
+
+    mtext("% with DE neighbors", side=2, line=2.5, cex=0.75)
+
+    mtext(legends[type], line=1, at=4, side=3, cex=0.75)
+
+    mtext(labels[plotindex], font=2, side=3, line=1.5, at=-1.65, cex=0.95)
+
+    plotindex=plotindex+1
 }
 
-#############################################################################
+##########################################################################
 
 dev.off()
 
-#############################################################################
+##########################################################################
