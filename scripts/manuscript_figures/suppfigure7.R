@@ -45,7 +45,6 @@ if(prepare){
 
     highly.cited.lnc=highly.cited.lnc[order(nb.citations.lnc[highly.cited.lnc], decreasing=T)]
 
-
     ## DE table
 
     de.table=matrix(rep(NA, length(highly.cited.lnc)*1), nrow=length(highly.cited.lnc))
@@ -111,9 +110,9 @@ if(prepare){
 
 #############################################################################
 
-pdf(file=paste(pathFigures, "SupplementaryFigure7.pdf", sep=""), width=3.85, height=7)
+pdf(file=paste(pathFigures, "SupplementaryFigure7.pdf", sep=""), width=3.85, height=7.5)
 
-m=matrix(rep(NA, 27*6), nrow=27)
+m=matrix(rep(NA, 28*6), nrow=28)
 
 for(i in seq(from=1, by=1, length.out=length(highly.cited.lnc))){
     j=2*i-1
@@ -122,7 +121,7 @@ for(i in seq(from=1, by=1, length.out=length(highly.cited.lnc))){
 
 ## legend
 
-for(i in 27){
+for(i in 27:28){
   M=max(m, na.rm=T)
   m[i,]=rep(M+1, 6)
 }
@@ -165,6 +164,8 @@ for(id in highly.cited.lnc){
         axis(side=1, at=seq(from=-1, to=1, by=2), mgp=c(3, 0.5, 0), cex=0.7)
 
         segments(0, 0, 0, 62, lty=2, col="darkred", xpd=NA)
+
+        mtext("TPM normalized difference, tumor vs. adjacent tissue", side=1, at=0, line=2.5, cex=0.75)
     }
 
     mtext(name, side=2, las=2, cex=0.6, line=6.2, font=3, adj=0)
