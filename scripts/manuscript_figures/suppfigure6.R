@@ -4,6 +4,8 @@ if(!("pathFigures"%in%objects())){
     pathRData="../../data_for_publication/RData/"
     pathFigures="../../data_for_publication/main_figures/"
 
+    library(vioplot)
+
     load=TRUE
     prepare=TRUE
 }
@@ -20,6 +22,14 @@ if(load){
     ## differential expression
     load(paste(pathRData, "data.diffexp.RData",sep=""))
 
+     ## sample info
+    load(paste(pathRData, "data.sample.info.TCGA.RData",sep=""))
+
+    ## TPM
+    load(paste(pathRData, "data.expression.levels.TCGA.RData",sep=""))
+    tpm.tcga=tpm
+
+
     maxFDR=0.05
     minFC=1.5
 
@@ -29,88 +39,165 @@ if(load){
 #############################################################################
 
 if(prepare){
+  ## for each gene, how many articles mention it
 
-    lnc.cited.once=names(nb.citations.lnc)[which(nb.citations.lnc==1)]
-    lnc.cited.more=names(nb.citations.lnc)[which(nb.citations.lnc>1)]
-    lnc.cited.all=names(nb.citations.lnc)
-    other.lnc=setdiff(lnc, lnc.cited.all)
+    highly.cited.lnc=names(nb.citations.lnc)[which(nb.citations.lnc>=10)]
 
-    pc.cited.once=names(nb.citations.pc)[which(nb.citations.pc==1)]
-    pc.cited.more=names(nb.citations.pc)[which(nb.citations.pc>1)]
-    pc.cited.all=names(nb.citations.pc)
-    other.pc=setdiff(pc, pc.cited.all)
+    highly.cited.lnc=highly.cited.lnc[order(nb.citations.lnc[highly.cited.lnc], decreasing=T)]
+
+
+    ## DE table
+
+    de.table=matrix(rep(NA, length(highly.cited.lnc)*1), nrow=length(highly.cited.lnc))
+
+    rownames(de.table)=highly.cited.lnc
+    colnames(de.table)=c("tnt.tcga")
+
+    for(test in colnames(de.table)){
+        this.de=get(paste("diffexp", test, sep="."))
+        tested=rownames(this.de)
+        signif.up=rownames(this.de)[which(this.de$padj<maxFDR & this.de$log2FoldChange>log2(minFC))]
+        signif.down=rownames(this.de)[which(this.de$padj<maxFDR & this.de$log2FoldChange<log2(1/minFC) )]
+
+        relax.up=rownames(this.de)[which(this.de$padj<maxFDR & this.de$log2FoldChange>0)]
+        relax.down=rownames(this.de)[which(this.de$padj<maxFDR & this.de$log2FoldChange<0 )]
+
+        relax.up=setdiff(relax.up, signif.up)
+        relax.down=setdiff(relax.down, signif.down)
+
+        if(any(highly.cited.lnc%in%tested)){
+            de.table[intersect(highly.cited.lnc, tested), test]=0
+        }
+
+        if(any(highly.cited.lnc%in%signif.up)){
+            de.table[intersect(highly.cited.lnc, signif.up), test]=1
+        }
+        if(any(highly.cited.lnc%in%relax.up)){
+            de.table[intersect(highly.cited.lnc, relax.up), test]=0.5
+        }
+
+        if(any(highly.cited.lnc%in%signif.down)){
+            de.table[intersect(highly.cited.lnc, signif.down), test]=-1
+        }
+
+        if(any(highly.cited.lnc%in%relax.down)){
+            de.table[intersect(highly.cited.lnc, relax.down), test]=-0.5
+        }
+    }
+
+    ## compute expression difference between paired biopsies
+
+    tumor.samples=rownames(sampleinfo)[which(sampleinfo$sample_type=="Tumor")]
+    names(tumor.samples)=sampleinfo$case_id[which(sampleinfo$sample_type=="Tumor")]
+
+    nontumor.samples=rownames(sampleinfo)[which(sampleinfo$sample_type=="Non-Tumor")]
+    names(nontumor.samples)=sampleinfo$case_id[which(sampleinfo$sample_type=="Non-Tumor")]
+
+    print(all(names(tumor.samples)==names(nontumor.samples)))
+
+    tpm.tumor=tpm.tcga[, tumor.samples]
+    tpm.nontumor=tpm.tcga[, nontumor.samples]
+
+    unique.patients=names(tumor.samples)
 
     prepare=FALSE
 }
 
 #############################################################################
 
-pdf(file=paste(pathFigures, "SupplementaryFigure6.pdf", sep=""), width=6.85, height=9.5)
+## 1 column width 87 mm = 3.34 in
+## 2 columns width 180 mm = 7.04 in
+## max height: 9 in, including legend
 
-m=matrix(rep(NA, 3*10), nrow=3)
+#############################################################################
 
-m[1,]=c(rep(1,5), rep(2,5))
-m[2,]=c(rep(3,5), rep(4,5))
-m[3,]=c(rep(5,5), rep(6,5))
+pdf(file=paste(pathFigures, "SupplementaryFigure6.pdf", sep=""), width=3.85, height=7)
+
+m=matrix(rep(NA, 27*6), nrow=27)
+
+for(i in seq(from=1, by=1, length.out=length(highly.cited.lnc))){
+    j=2*i-1
+    m[i,]=c(rep(j,5), rep(j+1,1))
+}
+
+## legend
+
+for(i in 27){
+  M=max(m, na.rm=T)
+  m[i,]=rep(M+1, 6)
+}
 
 layout(m)
 
 #############################################################################
 
-genetypes=c("pc.cited.more", "lnc.cited.more", "pc.cited.once", "lnc.cited.once", "other.pc", "other.lnc")
+## selected lncRNAs
 
-titles=c("protein-coding, cited >1 articles", "lncRNAs, cited >1 articles",  "protein-coding, cited 1 article", "lncRNAs, cited 1 article", "protein-coding, not cited", "lncRNAs, not cited")
-names(titles)=genetypes
+for(id in highly.cited.lnc){
+    ## gene name
+    name=geneinfo[id,"Name"]
 
-labels=letters[1:6]
-names(labels)=genetypes
+    print(name)
 
-for(genetype in genetypes){
-    this.genes=get(genetype)
+    ## gene expression values for sample categories
+    this.exp.tumor=as.numeric(tpm.tumor[id, ])
+    this.exp.nontumor=as.numeric(tpm.nontumor[id, ])
 
-    lfc.meric=diffexp.tnt.meric[this.genes, "log2FoldChange"]
-    lfc.tcga=diffexp.tnt.tcga[this.genes, "log2FoldChange"]
+    this.meanexp=(this.exp.tumor+this.exp.nontumor)/2
 
-    padj.meric=diffexp.tnt.meric[this.genes, "padj"]
-    padj.tcga=diffexp.tnt.tcga[this.genes, "padj"]
-    
-    lim=range(c(lfc.meric, lfc.tcga), na.rm=T)
+    this.diffexp=(this.exp.tumor-this.exp.nontumor)/this.meanexp
 
-    par(mar=c(4.1, 4.1, 2.1, 1.1))
-    plot(1, type="n", xlab="", ylab="", axes=F, xlim=lim, ylim=lim)
+    ## difference between tumor and liver
 
-    consistent=which((lfc.meric*lfc.tcga)>0 & padj.meric<maxFDR & padj.tcga<maxFDR)
-    inconsistent=which((lfc.meric*lfc.tcga)<0 & padj.meric<maxFDR & padj.tcga<maxFDR)
-    other=setdiff(1:length(lfc.meric), c(consistent, inconsistent))
+    par(mar=c(0.5, 6.5, 0.1, 0.15))
 
-    points(lfc.meric[other], lfc.tcga[other], pch=21, bg="gray40")
-    points(lfc.meric[consistent], lfc.tcga[consistent], pch=21, bg="seagreen")
-    points(lfc.meric[inconsistent], lfc.tcga[inconsistent], pch=21, bg="darkred")
+    ## xlim=range(c(this.exp.nontumor, this.exp.tumor))
 
-    axis(side=1, mgp=c(3, 0.5, 0))
-    axis(side=2, mgp=c(3, 0.65, 0))
-    box()
+    xlim=c(-2,2)
+    ylim=c(0.25, 1.75)
+    plot(1, type="n", xlim=xlim, ylim=ylim, axes=F, xlab="", ylab="")
 
-    mtext("log2 fold change, MERiC", side=1, line=2, cex=0.85)
-    mtext("log2 fold change, TCGA", side=2, line=2, cex=0.85)
+    vioplot(this.diffexp, h=0.25, add=T, axes=F, at=1, border="black", pchMed=21, colMed="black", colMed2="white", cex=0.95, col="gray60", horizontal=T)
 
-    abline(h=0, lty=3, col="gray40")
-    abline(v=0, lty=3, col="gray40")
-    abline(0, 1, lty=3, col="gray40")
+    ## axis if last plot
+    if(id==highly.cited.lnc[length(highly.cited.lnc)]){
+        axis(side=1, at=seq(from=-2, to=2, by=2), mgp=c(3, 0.5, 0), cex=0.7)
+        axis(side=1, at=seq(from=-1, to=1, by=2), mgp=c(3, 0.5, 0), cex=0.7)
 
-    rho=round(cor(lfc.meric, lfc.tcga, use="complete.obs", method="spearman"), digits=2)
+        segments(0, 0, 0, 62, lty=2, col="darkred", xpd=NA)
+    }
 
-    text(paste("rho =",rho), x=lim[1], y=lim[2], adj=c(0.1, 0.9), cex=1.1)
+    mtext(name, side=2, las=2, cex=0.6, line=6.2, font=3, adj=0)
 
-    mtext(titles[genetype], side=3, cex=0.85)
-    mtext(labels[genetype], side=3, cex=1.1, font=2, at=lim[1]-diff(lim)/5.8, line=0.5)
+    abline(h=0.2, lty=3, col="gray40", xpd=NA)
 
-    pc.consistent=round(100*length(consistent)/length(this.genes), digits=0)
-    pc.inconsistent=round(100*length(inconsistent)/length(this.genes), digits=0)
-    pc.other=round(100*length(other)/length(this.genes), digits=0)
-    
-    legend("bottomright", legend=c(paste("consistent DE (", pc.consistent,"%)",sep=""),paste("contradictory DE (", pc.inconsistent,"%)",sep=""), paste("other (", pc.other,"%)",sep="")), pch=21, inset=0.01, pt.bg=c("seagreen", "darkred", "gray40"))
-    
+    ## differential expression
+
+    par(mar=c(0.5,1.65,0.1,0))
+    xlim=c(0,1)
+    ylim=c(0,1)
+    plot(1, type="n", xlab="", ylab="",axes=F, xlim=xlim, ylim=ylim, xaxs="i", yaxs="i")
+
+    ## tumor vs normal liver
+
+    x2=0.5
+
+    ## tumor vs non-tumor, paired samples
+
+    if(de.table[id,"tnt.tcga"]==1){
+        arrows(x2, 0.1, x2, 0.9, length=0.035, lwd=1.15, col="black")
+    }
+    if(de.table[id,"tnt.tcga"]==0.5){
+        arrows(x2, 0.1, x2, 0.9, length=0.035, lwd=1.15, col="gray50")
+    }
+
+    if(de.table[id,"tnt.tcga"]==-1){
+        arrows(x2, 0.9, x2, 0.1, length=0.035, lwd=1.15, col="black")
+    }
+    if(de.table[id,"tnt.tcga"]==-0.5){
+        arrows(x2, 0.9, x2, 0.1, length=0.035, lwd=1.15, col="gray50")
+    }
+
 }
 
 #############################################################################
