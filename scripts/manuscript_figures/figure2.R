@@ -48,25 +48,15 @@ if(prepare){
     pc.cited.all=names(nb.citations.pc)
     other.pc=setdiff(pc, pc.cited.all)
 
-    ## extract overlaps with pc genes
-    overlaps.pc=gene.overlaps[which(gene.overlaps$NeighborID%in%pc),]
-
     ## sense and antisense overlaps
     sense.overlaps=gene.overlaps[which(gene.overlaps$Type=="sense"),]
     antisense.overlaps=gene.overlaps[which(gene.overlaps$Type=="antisense"),]
 
-    sense.overlaps.pc=overlaps.pc[which(overlaps.pc$Type=="sense"),]
-    antisense.overlaps.pc=overlaps.pc[which(overlaps.pc$Type=="antisense"),]
-
-    ## bidirectional promoters with pc genes
-
+    ## actual bidirectional promoters
     biprom1kb=biprom1kb[which(!is.na(biprom1kb$GenesCloseTSS)),]
     biprom5kb=biprom5kb[which(!is.na(biprom5kb$GenesCloseTSS)),]
 
-    biprom1kb.pc=biprom1kb[which(biprom1kb$GenesCloseTSS%in%pc),]
-    biprom5kb.pc=biprom1kb[which(biprom5kb$GenesCloseTSS%in%pc),]
-
-   ########################################################
+    ########################################################
 
     prop.antisense.overlaps=list()
     antisense.conf=list()
@@ -85,7 +75,6 @@ if(prepare){
     ## average expression level across various samples
     meantpm.nontumor=apply(tpm.meric[ ,nontumor.samples$biopsyID],1, mean)
     meantpm.tumor=apply(tpm.meric[ ,tumor.samples$tumor_biopsyID],1, mean)
-
 
     prepare=FALSE
 }
