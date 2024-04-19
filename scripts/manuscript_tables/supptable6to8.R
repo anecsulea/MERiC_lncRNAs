@@ -34,6 +34,7 @@ if(load){
 if(prepare){
 
     tpm.meric=tpm.meric[c(pc, lnc), c(tumor.samples.meric$tumor_biopsyID, nontumor.samples.meric$biopsyID)]
+    tpm.meric=round(tpm.meric, digits=2)
 
     prepare=FALSE
 }
