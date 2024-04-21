@@ -135,9 +135,9 @@ if(prepare){
 
 #############################################################################
 
-pdf(file=paste(pathFigures, "Figure4.pdf", sep=""), width=6.85, height=9.5)
+pdf(file=paste(pathFigures, "Figure4.pdf", sep=""), width=6.85, height=9)
 
-m=matrix(rep(NA, 64*19), nrow=64)
+m=matrix(rep(NA, 62*19), nrow=62)
 
 ## first line: spacer
 for(i in 1){
@@ -175,7 +175,7 @@ for(i in seq(from=11, by=2, length.out=length(highly.cited.lnc))){
 
 ## legend
 
-for(i in 63:64){
+for(i in 61:62){
   M=max(m, na.rm=T)
   m[i,]=rep(M+1, 19)
 }

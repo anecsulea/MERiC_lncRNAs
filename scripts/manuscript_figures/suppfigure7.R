@@ -115,7 +115,7 @@ if(prepare){
 
 pdf(file=paste(pathFigures, "SupplementaryFigure7.pdf", sep=""), width=3.85, height=7.5)
 
-m=matrix(rep(NA, 28*6), nrow=28)
+m=matrix(rep(NA, 27*6), nrow=27)
 
 for(i in seq(from=1, by=1, length.out=length(highly.cited.lnc))){
     j=2*i-1
@@ -124,7 +124,7 @@ for(i in seq(from=1, by=1, length.out=length(highly.cited.lnc))){
 
 ## legend
 
-for(i in 27:28){
+for(i in 26:27){
   M=max(m, na.rm=T)
   m[i,]=rep(M+1, 6)
 }
