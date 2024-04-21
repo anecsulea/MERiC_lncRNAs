@@ -46,6 +46,9 @@ if(prepare){
 
     highly.cited.lnc=highly.cited.lnc[order(nb.citations.lnc[highly.cited.lnc], decreasing=T)]
 
+    highly.cited.lnc=setdiff(highly.cited.lnc, "ENSG00000235300")
+    ## synonym of this lncRNA is BTR, which refers to BCAA/tyrosine ratio in the HCC  literature
+
     ## sample info, only for tumor samples
 
     rownames(tumor.samples)=as.character(tumor.samples$tumor_biopsyID)

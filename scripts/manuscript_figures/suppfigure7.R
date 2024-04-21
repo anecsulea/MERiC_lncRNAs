@@ -45,6 +45,9 @@ if(prepare){
 
     highly.cited.lnc=highly.cited.lnc[order(nb.citations.lnc[highly.cited.lnc], decreasing=T)]
 
+    highly.cited.lnc=setdiff(highly.cited.lnc, "ENSG00000235300")
+    ## synonym of this lncRNA is BTR, which refers to BCAA/tyrosine ratio in the HCC  literature
+
     ## DE table
 
     de.table=matrix(rep(NA, length(highly.cited.lnc)*1), nrow=length(highly.cited.lnc))
