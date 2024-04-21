@@ -2,7 +2,7 @@
 
 if(!("pathFigures"%in%objects())){
     pathRData="../../data_for_publication/RData/"
-    pathFigures="../../data_for_publication/main_figures/"
+    pathFigures="../../data_for_publication/figures/"
 
     library(vioplot)
 

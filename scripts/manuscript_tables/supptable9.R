@@ -2,7 +2,7 @@
 
 if(!("pathFigures"%in%objects())){
     pathRData="../../data_for_publication/RData/"
-    pathTables="../../data_for_publication/main_tables/"
+    pathTables="../../data_for_publication/tables/"
 
     options(stringsAsFactors=F)
 
