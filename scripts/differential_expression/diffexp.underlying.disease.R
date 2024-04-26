@@ -18,6 +18,8 @@ annot="AllTranscripts_Ensembl109_noMT_norRNA_nohaplo"
 
 load(paste(pathRData, "data.sample.info.MERiC.RData",sep=""))
 
+rownames(tumor.samples)=tumor.samples$tumor_biopsyID
+
 ########################################################################
 
 ## get read counts for each gene
@@ -54,13 +56,70 @@ tx2gene=data.frame("txid"=sinfo$target_id, "geneid"=geneid)
 
 ########################################################################
 
-## assemble kallisto counts
+disease.synonyms=c("ALD", "NAFLD", "HepB","HepC")
+names(disease.synonyms)= c("Alcoholic liver disease", "Non-alcoholic liver disease", "Hepatitis B", "Hepatitis C")
 
-files=paste(pathExpression, "/", annot,"/", samples, "/abundance.h5", sep="")
-names(files)=samples
+for(disease in c("Alcoholic liver disease", "Non-alcoholic liver disease", "Hepatitis B", "Hepatitis C")){
 
-txi.kallisto <- tximport(files, type = "kallisto", tx2gene = tx2gene)
+    diseased.samples=tumor.samples$tumor_biopsyID[grep(disease, tumor.samples$underlying_liver_disease)]
+    no.disease=tumor.samples$tumor_biopsyID[which(tumor.samples$underlying_liver_disease=="No liver disease")]
+    other.samples=setdiff(tumor.samples$tumor_biopsyID, diseased.samples)
+
+    for(control in c("no.disease", "other.samples")){
+
+        control.samples=get(control)
+
+        all.samples=c(diseased.samples, control.samples)
+
+        print(paste(disease, control))
+        print(paste(length(diseased.samples), "disease samples"))
+        print(paste(length(control.samples), "control.samples"))
+                
+        ## assemble kallisto counts
+        
+        files=paste(pathExpression, "/", annot,"/", all.samples, "/abundance.h5", sep="")
+        names(files)=all.samples
+        
+        txi.kallisto <- tximport(files, type = "kallisto", tx2gene = tx2gene)
+        
+        ## prepare design
+
+        disease.factor=c(rep("disease", length(diseased.samples)), rep("control", length(control.samples)))
+
+        this.edmondson=tumor.samples[all.samples, "edmondson"]
+        
+        eg=rep(NA, length(all.samples))
+        
+        eg[which(this.edmondson%in%c(1,2))]="12"
+        eg[which(this.edmondson%in%c(3,4))]="34"
+        
+        colData=data.frame("Sex"=as.factor(tumor.samples[all.samples, "sex"]), "EdmondsonGrade"=as.factor(eg), "Disease"=as.factor(disease.factor))
+
+        print(colData)
+        
+        ## run DESeq2
+        
+        dds=DESeqDataSetFromTximport(txi.kallisto, colData=colData, design = ~Sex+EdmondsonGrade+Disease)
+
+        dds=DESeq(dds, test="Wald",  minReplicatesForReplace=10, parallel=T)
+
+        ## get test results
+
+        results=results(dds, contrast=c("Disease", "disease", "control"))
+
+        results=lfcShrink(dds, coef="Disease_disease_vs_control", res=results, type="apeglm")
+        
+        results=as.data.frame(results)
+        
+        results=results[order(results$padj),]
+        
+        ## write results
+        
+        syn=disease.synonyms[disease]
+        
+        write.table(results, file=paste(pathDifferentialExpression, annot, "/DifferentialExpression_", syn,"_vs_",control,".txt",sep=""), row.names=T, col.names=T, sep="\t", quote=F)
+
+    }
+}
 
 ########################################################################
-
-for(disease in c("
