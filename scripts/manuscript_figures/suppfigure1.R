@@ -58,18 +58,19 @@ layout(m)
 years=2009:2022
 nbtot=nb.articles.per.year[as.character(years)]
 nbpc=nb.pcarticles.per.year[as.character(years)]
+proppc=100*nbpc/nbtot
 
 xpos=1:length(years)
 
 width=0.25
 
 xlim=c(0.5, length(years)+0.5)
-ylim=c(0, max(nbpc)*1.1)
+ylim=c(0, max(proppc)*1.1)
 
 par(mar=c(6.0, 3.75, 2.1, 0.75))
 
 plot(1, xlim=xlim, ylim=ylim, type="n", axes=F, xlab="", ylab="")
-rect(xpos-width, 0,  xpos+width, nbpc, col="steelblue", border=NA)
+rect(xpos-width, 0,  xpos+width, proppc, col="steelblue", border=NA)
 
 axis(side=1, at=xpos, labels=rep("", length(xpos)), mgp=c(3, 0.5, 0))
 mtext(years, at=xpos, line=0.85,  adj=1, side=1, las=2, cex=0.7)
@@ -77,7 +78,7 @@ mtext(years, at=xpos, line=0.85,  adj=1, side=1, las=2, cex=0.7)
 mtext("year of publication", side=1, line=3.75, cex=0.85)
 
 axis(side=2, cex.axis=1.05, mgp=c(3, 0.75, 0))
-mtext("number of protein-coding publications", side=2, line=2.25, cex=0.85)
+mtext("% of all HCC publications that cite p-c genes", side=2, line=2.25, cex=0.85)
 
 mtext("a", side=3, line=0.5, at=-3.1, font=2, cex=1.1)
 

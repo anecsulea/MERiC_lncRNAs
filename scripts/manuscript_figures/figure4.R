@@ -287,7 +287,7 @@ for(id in highly.cited.lnc){
         axis(side=1, at=seq(from=-2, to=2, by=2), mgp=c(3, 0.5, 0), cex=0.7)
         axis(side=1, at=seq(from=-1, to=1, by=2), mgp=c(3, 0.5, 0), cex=0.7)
 
-        segments(0, 0, 0, 58, lty=2, col="darkred", xpd=NA)
+        segments(0, 0, 0, 55, lty=2, col="darkred", xpd=NA)
     }
 
     mtext(name, side=2, las=2, cex=0.6, line=6.2, font=3, adj=0)
