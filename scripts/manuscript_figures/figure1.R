@@ -81,7 +81,7 @@ mtext("year of publication", side=1, line=3.75, cex=0.85)
 axis(side=2, cex.axis=1.05, mgp=c(3, 0.75, 0))
 mtext("% of all HCC publications that cite lncRNAs", side=2, line=2.25, cex=0.85)
 
-mtext("a", side=3, line=0.5, at=-3.1, font=2, cex=1.1)
+mtext("a", side=3, line=0.5, at=-3.5, font=2, cex=1.1)
 
 #############################################################################
 
@@ -116,7 +116,7 @@ allnb=nb.citations.lnc
 uniquenb=sort(unique(allnb[which(allnb>=20)]))
 
 xtext=uniquenb
-ytext=c(85, 145, 115, 85, 55, 115, 55)
+ytext=c(55, 85, 145, 115, 85, 55, 115, 55)
 
 names(xtext)=as.character(uniquenb)
 names(ytext)=as.character(uniquenb)
