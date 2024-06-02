@@ -22,7 +22,7 @@ pubs=pubs[which(pubs$PublicationType%in%c("Journal Article", "Retracted Publicat
 print(paste(nrow(pubs), "pubs after filtering types"))
 
 pubs$Year=as.numeric(pubs$Year)
-pubs=pubs[which(pubs$Year>=2000 & pubs$Year<=2022),]
+pubs=pubs[which(pubs$Year>=2000 & pubs$Year<=2023),]
 
 print(paste(nrow(pubs), "pubs after filtering years"))
 

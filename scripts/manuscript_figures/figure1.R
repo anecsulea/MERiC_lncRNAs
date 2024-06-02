@@ -56,7 +56,7 @@ layout(m)
 
 ## number of lncRNAs articles per year
 
-years=2009:2022
+years=2009:2023
 nbtot=nb.articles.per.year[as.character(years)]
 nblnc=nb.lncarticles.per.year[as.character(years)]
 proplnc=100*nblnc/nbtot

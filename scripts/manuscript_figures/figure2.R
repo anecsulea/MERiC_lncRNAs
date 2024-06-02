@@ -82,11 +82,6 @@ if(prepare){
     meantpm.nontumor=apply(tpm.meric[ ,nontumor.samples$biopsyID],1, mean)
     meantpm.tumor=apply(tpm.meric[ ,tumor.samples$tumor_biopsyID],1, mean)
 
-    ## pvalue symbols
-
-    pval.symbols=c("***", "**", "*", "N.S.")
-    pval.thresholds=c(1e-10, 0.01, 0.05, 1)
-
     ## pairwise comparisons
 
     comparisons=list(c("cited.more", "cited.once"), c("cited.once", "other"))

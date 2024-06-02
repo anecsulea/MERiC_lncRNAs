@@ -55,7 +55,7 @@ layout(m)
 
 ## number of pc articles per year
 
-years=2009:2022
+years=2009:2023
 nbtot=nb.articles.per.year[as.character(years)]
 nbpc=nb.pcarticles.per.year[as.character(years)]
 proppc=100*nbpc/nbtot
