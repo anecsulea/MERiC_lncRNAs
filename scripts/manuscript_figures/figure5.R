@@ -28,7 +28,7 @@ if(prepare){
 
     ## statistics per year
 
-    years=2009:2023
+    years=2009:2022
 
     nb.articles.per.year=table(factor(articles$Year, levels=years))
     nb.retractions.per.year=table(factor(retractions$Year, levels=years))
