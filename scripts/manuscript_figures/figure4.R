@@ -42,7 +42,7 @@ if(load){
 if(prepare){
   ## for each gene, how many articles mention it
 
-    highly.cited.lnc=names(nb.citations.lnc)[which(nb.citations.lnc>=10)]
+    highly.cited.lnc=names(sort(nb.citations.lnc, decreasing=T))[1:26]
 
     highly.cited.lnc=highly.cited.lnc[order(nb.citations.lnc[highly.cited.lnc], decreasing=T)]
 
