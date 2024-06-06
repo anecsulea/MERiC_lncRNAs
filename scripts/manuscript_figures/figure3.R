@@ -17,7 +17,7 @@ if(!("pathFigures" %in% objects())){
 
 if(load){
     ## cited lncRNAs
-    load(paste(pathRData, "data.PubMed.analysis.RData", sep=""))
+    load(paste(pathRData, "data.PubMed.analysis.2023.RData", sep=""))
 
     ## gene info
     load(paste(pathRData, "data.gene.info.RData", sep=""))
