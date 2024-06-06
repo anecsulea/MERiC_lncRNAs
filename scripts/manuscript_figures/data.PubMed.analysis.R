@@ -10,50 +10,51 @@ load(paste(pathRData,"data.gene.info.RData",sep=""))
 
 ##########################################################################
 
-## all publications
-pubs=read.table(paste(pathPubMed, "PubMed_hepatocellular_carcinoma_Title_11_03_2024.tsv", sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
+for(maxyear in c(2022, 2023)){
 
-print(paste(nrow(pubs), "publications initially"))
+    ## all publications
+    pubs=read.table(paste(pathPubMed, "PubMed_hepatocellular_carcinoma_Title_11_03_2024.tsv", sep=""), h=T, stringsAsFactors=F, sep="\t", quote="\"")
 
-## keep only journal articles and retracted articles
+    print(paste(nrow(pubs), "publications initially"))
 
-pubs=pubs[which(pubs$PublicationType%in%c("Journal Article", "Retracted Publication")),]
+    ## keep only journal articles and retracted articles
 
-print(paste(nrow(pubs), "pubs after filtering types"))
+    pubs=pubs[which(pubs$PublicationType%in%c("Journal Article", "Retracted Publication")),]
 
-pubs$Year=as.numeric(pubs$Year)
-pubs=pubs[which(pubs$Year>=2000 & pubs$Year<=2023),]
+    print(paste(nrow(pubs), "pubs after filtering types"))
 
-print(paste(nrow(pubs), "pubs after filtering years"))
+    pubs$Year=as.numeric(pubs$Year)
+    pubs=pubs[which(pubs$Year>=2000 & pubs$Year<=maxyear),]
 
-###############################################################################
+    print(paste(nrow(pubs), "pubs after filtering years"))
 
-## check if article cites lncRNAs or protein-coding genes
+    ###############################################################################
 
-pubs$CitedLnc=unlist(lapply(pubs$CitedGenes, function(x) paste(intersect(unlist(strsplit(x, split=";")), lnc), collapse=";")))
-pubs$CitedPc=unlist(lapply(pubs$CitedGenes, function(x) paste(intersect(unlist(strsplit(x, split=";")), pc), collapse=";")))
+    ## check if article cites lncRNAs or protein-coding genes
+
+    pubs$CitedLnc=unlist(lapply(pubs$CitedGenes, function(x) paste(intersect(unlist(strsplit(x, split=";")), lnc), collapse=";")))
+    pubs$CitedPc=unlist(lapply(pubs$CitedGenes, function(x) paste(intersect(unlist(strsplit(x, split=";")), pc), collapse=";")))
+
+    ##########################################################################
+
+    ## extract all cited pc and lnc
+
+    all.cited.pc=unlist(lapply(pubs$CitedPc, function(x) unlist(strsplit(x, split=";"))))
+    nb.citations.pc=as.numeric(table(all.cited.pc))
+    names(nb.citations.pc)=levels(as.factor(all.cited.pc))
+
+    all.cited.lnc=unlist(lapply(pubs$CitedLnc, function(x) unlist(strsplit(x, split=";"))))
+    nb.citations.lnc=as.numeric(table(all.cited.lnc))
+    names(nb.citations.lnc)=levels(as.factor(all.cited.lnc))
+
+    ## don't count them twice
+
+    all.cited.pc=unique(all.cited.pc)
+    all.cited.lnc=unique(all.cited.lnc)
+
+    ##########################################################################
+
+    save(list=c("pubs", "all.cited.pc", "all.cited.lnc", "nb.citations.pc", "nb.citations.lnc"), file=paste(pathRData, "data.PubMed.analysis.",maxyear,".RData",sep=""))
+}
 
 ##########################################################################
-
-## extract all cited pc and lnc
-
-all.cited.pc=unlist(lapply(pubs$CitedPc, function(x) unlist(strsplit(x, split=";"))))
-nb.citations.pc=as.numeric(table(all.cited.pc))
-names(nb.citations.pc)=levels(as.factor(all.cited.pc))
-
-all.cited.lnc=unlist(lapply(pubs$CitedLnc, function(x) unlist(strsplit(x, split=";"))))
-nb.citations.lnc=as.numeric(table(all.cited.lnc))
-names(nb.citations.lnc)=levels(as.factor(all.cited.lnc))
-
-## don't count them twice
-
-all.cited.pc=unique(all.cited.pc)
-all.cited.lnc=unique(all.cited.lnc)
-
-##########################################################################
-
-save(list=c("pubs", "all.cited.pc", "all.cited.lnc", "nb.citations.pc", "nb.citations.lnc"), file=paste(pathRData, "data.PubMed.analysis.RData",sep=""))
-
-##########################################################################
-
-
