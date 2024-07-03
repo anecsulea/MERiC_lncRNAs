@@ -223,9 +223,6 @@ for(tissue in c("tumor", "nontumor")){
 
     axis(side=1, at=xpos.genetypes, labels=rep("", length(xpos.genetypes)), mgp=c(3,0.5,0))
 
-    ## if(tissue=="nontumor"){
-    ##     legend("topright", legend=c("protein-coding", "lncRNAs"), fill=c("indianred", "steelblue"), xpd=NA, inset=c(-0.075, -0.15), cex=1.1, box.col="white", bg="white")
-    ## }
 
     mtext(labels[tissue], font=2, line=0.95, at=-1)
 
@@ -406,7 +403,6 @@ for(i in 1:2){
 
         text(format(this.pval, digits=1), x=mean(this.xpos), y=this.ypos+tinyy, adj=c(0.5,0.01), col=col.genecat[genetype], cex=0.9, xpd=NA)
     }
-
 }
 
 axis(side=2, mgp=c(3,0.65,0), at=seq(from=0, to=1, by=0.2))
