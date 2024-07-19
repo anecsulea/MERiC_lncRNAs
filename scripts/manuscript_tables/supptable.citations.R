@@ -61,6 +61,6 @@ if(prepare){
 
 ## write raw table - we will add manual assessment later
 
-write.table(results, file=paste(pathTables, "SupplementaryTable12_rawdata.tsv",sep=""), row.names=F, col.names=T, sep="\t", quote=F)
+write.table(results, file=paste(pathTables, "SupplementaryTable11_rawdata.tsv",sep=""), row.names=F, col.names=T, sep="\t", quote=F)
 
 ##########################################################################
