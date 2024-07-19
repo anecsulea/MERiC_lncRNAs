@@ -14,7 +14,7 @@ if(!("pathTables"%in%objects())){
 
 if(load){
     ## cited lncRNAs
-    load(paste(pathRData, "data.PubMed.analysis.RData",sep=""))
+    load(paste(pathRData, "data.PubMed.analysis.2023.RData",sep=""))
 
     ## gene info
     load(paste(pathRData, "data.gene.info.RData", sep=""))
@@ -51,12 +51,12 @@ if(prepare){
 
 #############################################################################
 ## supp table 9 - tnt meric
-write.table(diffexp.tnt.meric, paste(pathTables, "SupplementaryTable9.tsv",sep=""), sep="\t", quote=F, row.names=F, col.names=T)
+write.table(diffexp.tnt.meric, paste(pathTables, "SupplementaryTable8.tsv",sep=""), sep="\t", quote=F, row.names=F, col.names=T)
 
 ## supp table 10 - grades meric
-write.table(diffexp.grades, paste(pathTables, "SupplementaryTable10.tsv",sep=""), sep="\t", quote=F, row.names=F, col.names=T)
+write.table(diffexp.grades, paste(pathTables, "SupplementaryTable9.tsv",sep=""), sep="\t", quote=F, row.names=F, col.names=T)
 
 ## supp table 11 - tnt tcga
-write.table(diffexp.tnt.tcga, paste(pathTables, "SupplementaryTable11.tsv",sep=""), sep="\t", quote=F, row.names=F, col.names=T)
+write.table(diffexp.tnt.tcga, paste(pathTables, "SupplementaryTable10.tsv",sep=""), sep="\t", quote=F, row.names=F, col.names=T)
 
 #############################################################################

@@ -14,7 +14,7 @@ if(!("pathFigures"%in%objects())){
 
 if(load){
     ## info for each publication
-    load(paste(pathRData, "data.PubMed.analysis.RData", sep=""))
+    load(paste(pathRData, "data.PubMed.analysis.2023.RData", sep=""))
 
     ## gene info
     load(paste(pathRData, "data.gene.info.RData", sep=""))
@@ -127,10 +127,10 @@ if(prepare){
 
 ## info for lncRNAs
 
-write.table(info.lnc, file=paste(pathTables, "SupplementaryTable4.tsv",sep=""), row.names=F, col.names=T, sep="\t", quote=F)
+write.table(info.lnc, file=paste(pathTables, "SupplementaryTable6.tsv",sep=""), row.names=F, col.names=T, sep="\t", quote=F)
 
 ## info for protein-coding genes
 
-write.table(info.pc, file=paste(pathTables, "SupplementaryTable5.tsv",sep=""), row.names=F, col.names=T, sep="\t", quote=F)
+write.table(info.pc, file=paste(pathTables, "SupplementaryTable7.tsv",sep=""), row.names=F, col.names=T, sep="\t", quote=F)
 
 ##########################################################################

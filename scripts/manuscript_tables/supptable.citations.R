@@ -14,7 +14,7 @@ if(!("pathFigures"%in%objects())){
 
 if(load){
     ## info for each publication
-    load(paste(pathRData, "data.PubMed.analysis.RData", sep=""))
+    load(paste(pathRData, "data.PubMed.analysis.2022.RData", sep=""))
 
     ## gene info
     load(paste(pathRData, "data.gene.info.RData", sep=""))
@@ -61,6 +61,6 @@ if(prepare){
 
 ## write raw table - we will add manual assessment later
 
-write.table(results, file=paste(pathTables, "SupplementaryTable9_rawdata.tsv",sep=""), row.names=F, col.names=T, sep="\t", quote=F)
+write.table(results, file=paste(pathTables, "SupplementaryTable12_rawdata.tsv",sep=""), row.names=F, col.names=T, sep="\t", quote=F)
 
 ##########################################################################

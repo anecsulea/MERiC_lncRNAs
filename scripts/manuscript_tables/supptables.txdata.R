@@ -43,15 +43,11 @@ if(prepare){
 
 ## info for selected tumor samples
 
-write.table(tumor.samples.meric,  file=paste(pathTables, "SupplementaryTable6.tsv",sep=""), row.names=F, col.names=T, sep="\t", quote=F)
+write.table(tumor.samples.meric,  file=paste(pathTables, "SupplementaryTable4.tsv",sep=""), row.names=F, col.names=T, sep="\t", quote=F)
 
 ## info for selected adjacent tissue samples
 
-write.table(nontumor.samples.meric,  file=paste(pathTables, "SupplementaryTable7.tsv",sep=""), row.names=F, col.names=T, sep="\t", quote=F)
-
-## TPM values for pc and lncRNA genes
-
-write.table(tpm.meric[,tumor.samples.meric$tumor_biopsyID], file=paste(pathTables, "SupplementaryTable8.tsv",sep=""), row.names=T, col.names=T, sep="\t", quote=F)
+write.table(nontumor.samples.meric,  file=paste(pathTables, "SupplementaryTable5.tsv",sep=""), row.names=F, col.names=T, sep="\t", quote=F)
 
 
 ##########################################################################
