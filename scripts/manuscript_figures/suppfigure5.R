@@ -204,9 +204,9 @@ for(type in c("tnt.tcga")){
 
         axis(side=1, at=xpos.genetypes, labels=rep("",length(xpos.genetypes)))
 
-        mtext("% up-regulated", side=2, line=2.5, cex=0.75)
+        mtext(paste("% ", direction, "-regulated",sep=""), side=2, line=2.5, cex=0.75)
 
-        mtext(paste("up-regulated in", legends[type]), line=1, at=4, side=3, cex=0.75)
+        mtext(paste(direction, "-regulated in ", legends[type], sep=""), line=1, at=4, side=3, cex=0.75)
 
         mtext(labels[plotindex], font=2, side=3, line=1.5, at=-1.65, cex=0.95)
         plotindex=plotindex+1
