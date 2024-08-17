@@ -3,6 +3,4 @@ data_for_publication
 results
 scripts/tmp_backup
 **xlsx
-docs/RNASeq_Files.txt
-docs/SampleAnnotation_CN_AN.txt
 docs/*
