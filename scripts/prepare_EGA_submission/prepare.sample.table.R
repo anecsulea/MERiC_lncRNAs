@@ -1,6 +1,7 @@
 #############################################################################
 
 pathTables="../../data_for_publication/tables/"
+pathEGA="../../data_for_publication/EGA_submission/"
 
 #############################################################################
 
@@ -29,6 +30,6 @@ results=results[, columnOrder]
 
 #############################################################################
 
-write.table(results, file=paste(pathDocs, "EGA_submission_sampleinfo.csv", sep=""), row.names=F, col.names=T, sep=",", quote=T)
+write.table(results, file=paste(pathEGA, "EGA_submission_sampleinfo.csv", sep=""), row.names=F, col.names=T, sep=",", quote=T)
 
 #############################################################################
