@@ -9,7 +9,7 @@ export pathTools=$3
 export pathScripts=${path}/scripts/prepare_EGA_submission
 export pathDocs=${path}/docs
 export pathData=${path}/data/RNASeq
-export pathResults=${pathScripts}/data_for_publication/EGA_submission/encrypted_files
+export pathResults=${path}/data_for_publication/EGA_submission/encrypted_files
 export pathEGA=${pathTools}/EGA-Cryptor-2.0.0
 
 export iRods=MERIC/data/RNASeq/
