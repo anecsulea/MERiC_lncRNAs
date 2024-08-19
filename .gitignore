@@ -3,3 +3,4 @@ data_for_publication
 results
 **xlsx
 docs/*
+scripts/prepare_EGA_submission/upload.files.sh
